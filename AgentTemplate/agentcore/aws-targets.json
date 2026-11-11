@@ -1,0 +1,8 @@
+[
+  {
+    "name": "default",
+    "description": "Troque account pela sua conta AWS antes do primeiro deploy",
+    "account": "000000000000",
+    "region": "us-east-1"
+  }
+]

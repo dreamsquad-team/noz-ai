@@ -1,0 +1,28 @@
+# Ambiente de teste das Lambdas do Gateway, e nada além disso.
+#
+# O que vai para a AWS é lambda/my-tool/, cujo pyproject declara
+# dependencies = [] de propósito — boto3 e botocore vêm do runtime gerenciado
+# da Lambda. Este arquivo NÃO é aquele pacote: ele existe um nível acima
+# justamente para não entrar no empacotamento, e é só o dono do venv e da
+# configuração do pytest.
+#
+#     cd lambda && uv sync && uv run pytest
+
+[project]
+name = "my-tool-tests"
+version = "0"
+requires-python = ">=3.10"
+dependencies = []
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+# Não há pacote a construir aqui — só o ambiente.
+[tool.uv]
+package = false
+
+[tool.pytest.ini_options]
+pythonpath = ["my-tool"]
+testpaths = ["tests"]

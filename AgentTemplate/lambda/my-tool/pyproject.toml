@@ -1,0 +1,16 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "my-tool"
+version = "0.1.0"
+description = "Lambda da tool exposta pelo AgentCore Gateway"
+requires-python = ">=3.10"
+# boto3/botocore vêm do runtime gerenciado da Lambda; sem dependências
+# externas, o pacote sobe leve. Se a sua tool precisar de uma lib de verdade,
+# declare-a aqui.
+dependencies = []
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]

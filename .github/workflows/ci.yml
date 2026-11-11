@@ -1,0 +1,33 @@
+name: CI
+
+on:
+  push:
+    branches: ["**"]
+  pull_request:
+    branches: ["**"]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up uv
+        uses: astral-sh/setup-uv@v5
+
+      - name: Set up Python
+        run: uv python install 3.13
+
+      # Lint não reprova o build (|| true), como antes. Os testes reprovam.
+      - name: Lint (ruff)
+        run: uvx ruff@0.6.5 check AgentTemplate/app/agent-template AgentTemplate/lambda || true
+
+      - name: Tests (agente)
+        working-directory: AgentTemplate/app/agent-template
+        run: uv run --python 3.13 pytest -q
+
+      - name: Tests (Lambda)
+        working-directory: AgentTemplate/lambda
+        run: uv run --python 3.13 pytest -q

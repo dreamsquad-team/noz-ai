@@ -1,0 +1,37 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "agent-template"
+version = "0.1.0"
+description = "AgentCore Runtime Application using Strands SDK"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "aws-opentelemetry-distro",
+    "bedrock-agentcore >= 1.9.1",
+    # mcp_client/sigv4.py abre uma boto3.Session para resolver as credenciais
+    # da execution role; botocore sozinho não basta.
+    "boto3 >= 1.35.0",
+    "botocore[crt] >= 1.35.0",
+    "mcp ~= 1.24.0",
+    "pydantic-settings>=2.4,<3",
+    # 1.53 é o piso verificado: é a versão em que MCPClient aceita
+    # `auth_provider` (o assinador SigV4) e `continue_on_error`, e em que ele é
+    # um ToolProvider — os três são premissas de mcp_client/client.py e de
+    # build_tools() no main.py.
+    "strands-agents >= 1.53.0",
+]
+
+[tool.hatch.build.targets.wheel]
+packages = ["."]
+
+[dependency-groups]
+dev = [
+    "pytest>=8",
+]
+
+[tool.pytest.ini_options]
+pythonpath = ["."]
+testpaths = ["tests"]
