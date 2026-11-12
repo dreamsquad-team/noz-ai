@@ -7,4 +7,4 @@ def load_model() -> BedrockModel:
     # cross-region; a role do Runtime já pode invocar qualquer modelo/profile
     # da conta (o CDK concede), então só um modelo de Marketplace exige policy
     # extra em global-policy.json.
-    return BedrockModel(model_id="us.anthropic.claude-haiku-4-5-20251001-v1:0")
+    return BedrockModel(model_id="us.amazon.nova-pro-v1:0")
