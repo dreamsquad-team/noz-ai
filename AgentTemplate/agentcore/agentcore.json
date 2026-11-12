@@ -125,14 +125,14 @@
       "enableSemanticSearch": false,
       "exceptionLevel": "NONE",
       "policyEngineConfiguration": {
-        "policyEngineName": "MyPolicyEngine",
+        "policyEngineName": "noz_ai_policy_engine",
         "mode": "ENFORCE"
       }
     }
   ],
   "policyEngines": [
     {
-      "name": "MyPolicyEngine",
+      "name": "noz_ai_policy_engine",
       "policies": []
     }
   ],
