@@ -17,14 +17,14 @@ class Settings(BaseSettings):
 
     # O CLI deriva o nome da env var do nome do recurso em agentcore.json:
     # `MEMORY_${name.toUpperCase()}_ID` (AgentCoreMemory.js:185). Com o recurso
-    # chamado "AgentTemplateMemory", o nome é MEMORY_AGENTTEMPLATEMEMORY_ID —
+    # chamado "noz_ai", o nome é MEMORY_NOZ_AI_ID —
     # se você renomear o recurso, renomeie o alias junto, ou o agente sobe sem
     # memória em silêncio. MEMORY_ID fica aceito para o dev local; a ordem
     # define a precedência.
     memory_id: Optional[str] = Field(
         default=None,
         validation_alias=AliasChoices(
-            "MEMORY_AGENTTEMPLATEMEMORY_ID",
+            "MEMORY_NOZ_AI_ID",
             "MEMORY_ID",
         ),
     )
@@ -46,7 +46,7 @@ class Settings(BaseSettings):
     gateway_url: Optional[str] = Field(
         default=None,
         validation_alias=AliasChoices(
-            "AGENTCORE_GATEWAY_MY_GATEWAY_URL",
+            "AGENTCORE_GATEWAY_NOZ_AI_URL",
             "GATEWAY_URL",
         ),
     )
