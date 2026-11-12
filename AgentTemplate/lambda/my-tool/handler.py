@@ -21,7 +21,7 @@ log = logging.getLogger()
 log.setLevel(logging.INFO)
 
 # O nome da tool, exatamente como declarado no toolDefinition.
-TOOL = "tool_name"
+TOOL = "tool_noz_ai"
 
 # O Gateway prepõe "<NomeDoTarget>___" ao nome visível da tool.
 DELIMITER = "___"
