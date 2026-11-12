@@ -1,4 +1,5 @@
 import json
+import pytest
 from pathlib import Path
 
 from config.settings import Settings
@@ -85,6 +86,7 @@ def test_the_memory_alias_matches_the_resource_name_in_agentcore_json(monkeypatc
     )
 
 
+@pytest.mark.skip(reason="gateway removido nesta task (ATHENA-946); reativar quando o gateway voltar")
 def test_the_gateway_alias_matches_the_gateway_name_in_agentcore_json(monkeypatch):
     """Para um gateway declarado no MESMO agentcore.json, o CDK injeta
     AGENTCORE_GATEWAY_${NOME}_URL sozinho — com `-` virando `_` e a URL
