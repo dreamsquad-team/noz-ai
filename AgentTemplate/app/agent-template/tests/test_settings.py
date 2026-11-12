@@ -8,25 +8,25 @@ from config.settings import Settings
 
 
 def test_memory_id_from_cli_injected_var(monkeypatch):
-    monkeypatch.setenv("MEMORY_AGENTTEMPLATEMEMORY_ID", "mem-do-cli")
+    monkeypatch.setenv("MEMORY_NOZ_AI_ID", "mem-do-cli")
     monkeypatch.delenv("MEMORY_ID", raising=False)
     assert Settings(_env_file=None).memory_id == "mem-do-cli"
 
 
 def test_memory_id_from_local_dev_var(monkeypatch):
-    monkeypatch.delenv("MEMORY_AGENTTEMPLATEMEMORY_ID", raising=False)
+    monkeypatch.delenv("MEMORY_NOZ_AI_ID", raising=False)
     monkeypatch.setenv("MEMORY_ID", "mem-do-dev-local")
     assert Settings(_env_file=None).memory_id == "mem-do-dev-local"
 
 
 def test_cli_var_wins_over_local_dev_var(monkeypatch):
-    monkeypatch.setenv("MEMORY_AGENTTEMPLATEMEMORY_ID", "mem-do-cli")
+    monkeypatch.setenv("MEMORY_NOZ_AI_ID", "mem-do-cli")
     monkeypatch.setenv("MEMORY_ID", "mem-do-dev-local")
     assert Settings(_env_file=None).memory_id == "mem-do-cli"
 
 
 def test_memory_id_absent_is_none(monkeypatch):
-    monkeypatch.delenv("MEMORY_AGENTTEMPLATEMEMORY_ID", raising=False)
+    monkeypatch.delenv("MEMORY_NOZ_AI_ID", raising=False)
     monkeypatch.delenv("MEMORY_ID", raising=False)
     assert Settings(_env_file=None).memory_id is None
 
@@ -44,7 +44,7 @@ def test_aws_region_is_read_from_env(monkeypatch):
 def test_dotenv_with_unknown_keys_does_not_raise(tmp_path, monkeypatch):
     """extra='ignore' — sem isso o pydantic-settings recusa chaves do .env
     que não têm campo correspondente, e a subida quebra."""
-    monkeypatch.delenv("MEMORY_AGENTTEMPLATEMEMORY_ID", raising=False)
+    monkeypatch.delenv("MEMORY_NOZ_AI_ID", raising=False)
     monkeypatch.delenv("MEMORY_ID", raising=False)
     env_file = tmp_path / ".env"
     env_file.write_text("MEMORY_ID=mem-local\nCHAVE_SEM_CAMPO=qualquer\n")
