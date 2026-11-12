@@ -1,3 +1,23 @@
 {
-  "targets": {}
+  "targets": {
+    "NozAI": {
+      "resources": {
+        "runtimes": {
+          "noz_ai_runtime": {
+            "runtimeId": "NozAI_noz_ai_runtime-oQ23lC9WVZ",
+            "runtimeArn": "arn:aws:bedrock-agentcore:us-east-1:862558960374:runtime/NozAI_noz_ai_runtime-oQ23lC9WVZ",
+            "roleArn": "arn:aws:iam::862558960374:role/AgentCore-NozAI-NozAI-ApplicationAgentNozAiRuntimeE-Gz9DdnVkas4u"
+          }
+        },
+        "memories": {
+          "noz_ai": {
+            "memoryId": "NozAI_noz_ai-Y3OiPd6lk2",
+            "memoryArn": "arn:aws:bedrock-agentcore:us-east-1:862558960374:memory/NozAI_noz_ai-Y3OiPd6lk2"
+          }
+        },
+        "stackName": "AgentCore-NozAI-NozAI",
+        "deployHash": "0ecd486e6fcb7959"
+      }
+    }
+  }
 }

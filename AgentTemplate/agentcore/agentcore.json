@@ -1,15 +1,15 @@
 {
   "$schema": "https://schema.agentcore.aws.dev/v1/agentcore.json",
-  "name": "AgentTemplate",
+  "name": "NozAI",
   "version": 1,
   "managedBy": "CDK",
   "tags": {
     "agentcore:created-by": "agentcore-cli",
-    "agentcore:project-name": "AgentTemplate"
+    "agentcore:project-name": "NozAI"
   },
   "runtimes": [
     {
-      "name": "AgentTemplate",
+      "name": "noz_ai_runtime",
       "build": "CodeZip",
       "entrypoint": "main.py",
       "codeLocation": "app/agent-template/",
@@ -24,141 +24,14 @@
   ],
   "memories": [
     {
-      "name": "AgentTemplateMemory",
+      "name": "noz_ai",
       "eventExpiryDuration": 30,
       "strategies": []
-    }
-  ],
-  "knowledgeBases": [
-    {
-      "type": "AgentCoreKnowledgeBase",
-      "name": "MyKnowledgeBase",
-      "dataSources": [
-        {
-          "type": "S3",
-          "uri": "s3://replace-with-your-kb-bucket/kb/"
-        }
-      ]
     }
   ],
   "credentials": [],
   "evaluators": [],
   "onlineEvalConfigs": [],
-  "agentCoreGateways": [
-    {
-      "name": "my-gateway",
-      "protocolType": "MCP",
-      "description": "Gateway for my-gateway",
-      "targets": [
-        {
-          "name": "my-tool-example-target",
-          "targetType": "lambda",
-          "toolDefinitions": [
-            {
-              "name": "tool_name",
-              "description": "tool_description",
-              "inputSchema": {
-                "type": "object",
-                "properties": {
-                  "string_example": {
-                    "type": "string",
-                    "description": "Example de String;"
-                  },
-                  "client_id": {
-                    "type": "integer",
-                    "description": "Id do cliente;"
-                  },
-                  "field_example": {
-                    "type": "array",
-                    "description": "Exemplo de array com strings",
-                    "items": {
-                      "type": "string"
-                    }
-                  }
-                },
-                "required": [
-                  "string_example",
-                  "field_example"
-                ]
-              },
-              "outputSchema": {
-                "type": "object",
-                "properties": {
-                  "example_fields": {
-                    "type": "array",
-                    "items": {
-                      "type": "object",
-                      "properties": {
-                        "client_id": {
-                          "type": "string"
-                        },
-                        "example_field_return": {
-                          "type": "string"
-                        },
-                        "created_at": {
-                          "type": "string"
-                        },
-                        "score": {
-                          "type": "integer",
-                          "description": "Tambem pode ter description"
-                        }
-                      }
-                    }
-                  },
-                  "example_return": {
-                    "type": "integer"
-                  },
-                  "motivo_vazio": {
-                    "type": "string",
-                    "description": "Presente só quando example_fields vem vazia; omitido no sucesso"
-                  }
-                },
-                "required": [
-                  "example_fields",
-                  "example_return"
-                ]
-              }
-            }
-          ],
-          "compute": {
-            "host": "Lambda",
-            "implementation": {
-              "language": "Python",
-              "path": "lambda/my-tool",
-              "handler": "handler.lambda_handler"
-            },
-            "pythonVersion": "PYTHON_3_14",
-            "timeout": 60,
-            "memorySize": 512,
-            "iamPolicy": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "ReadRuntimeConfig",
-                  "Effect": "Allow",
-                  "Action": "ssm:GetParameter",
-                  "Resource": "arn:aws:ssm:us-east-1:<ACCOUNT_ID>:parameter/<PATH>"
-                }
-              ]
-            }
-          }
-        }
-      ],
-      "authorizerType": "AWS_IAM",
-      "enableSemanticSearch": false,
-      "exceptionLevel": "NONE",
-      "policyEngineConfiguration": {
-        "policyEngineName": "MyPolicyEngine",
-        "mode": "ENFORCE"
-      }
-    }
-  ],
-  "policyEngines": [
-    {
-      "name": "MyPolicyEngine",
-      "policies": []
-    }
-  ],
   "configBundles": [],
   "abTests": [],
   "harnesses": [],

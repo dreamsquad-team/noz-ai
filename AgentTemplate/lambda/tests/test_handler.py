@@ -14,7 +14,7 @@ class FakeContext:
     """Dublê do context da Lambda. O Gateway entrega o nome da tool com o
     prefixo do target em client_context.custom."""
 
-    def __init__(self, tool="MyToolExampleTarget___tool_name"):
+    def __init__(self, tool="noz-ai-target___tool_noz_ai"):
         self.client_context = type("CC", (), {"custom": {"bedrockAgentCoreToolName": tool}})()
 
 
@@ -26,12 +26,12 @@ def valid_event():
 
 
 def test_the_target_prefix_is_cut_from_the_tool_name():
-    assert handler.tool_name(FakeContext()) == "tool_name"
+    assert handler.tool_name(FakeContext()) == "tool_noz_ai"
 
 
 def test_a_name_without_the_prefix_comes_back_whole():
     """Invocação direta, fora do Gateway: não há prefixo a cortar."""
-    assert handler.tool_name(FakeContext("tool_name")) == "tool_name"
+    assert handler.tool_name(FakeContext("tool_noz_ai")) == "tool_noz_ai"
 
 
 # --- o contrato de saída -----------------------------------------------------
