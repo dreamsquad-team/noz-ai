@@ -2,15 +2,6 @@
   "Version": "2012-10-17",
   "Statement": [
     {
-      "Sid": "ReadAgentPrompt",
-      "Effect": "Allow",
-      "Action": "bedrock:GetPrompt",
-      "Resource": [
-        "arn:aws:bedrock:us-east-1:<ACCOUNT_ID>:prompt/<PROMPT_ID>",
-        "arn:aws:bedrock:us-east-1:<ACCOUNT_ID>:prompt/<PROMPT_ID>:*"
-      ]
-    },
-    {
       "Sid": "XRaySampling",
       "Effect": "Allow",
       "Action": [
@@ -38,8 +29,8 @@
         "bedrock-agentcore:GetWorkloadAccessTokenForJWT"
       ],
       "Resource": [
-        "arn:aws:bedrock-agentcore:us-east-1:<ACCOUNT_ID>:workload-identity-directory/default",
-        "arn:aws:bedrock-agentcore:us-east-1:<ACCOUNT_ID>:workload-identity-directory/default/workload-identity/AgentTemplate_AgentTemplate-*"
+        "arn:aws:bedrock-agentcore:us-east-1:862558960374:workload-identity-directory/default",
+        "arn:aws:bedrock-agentcore:us-east-1:862558960374:workload-identity-directory/default/workload-identity/NozAI_noz_ai_runtime-*"
       ]
     }
   ]
