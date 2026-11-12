@@ -1,8 +1,8 @@
 [
   {
-    "name": "default",
-    "description": "Troque account pela sua conta AWS antes do primeiro deploy",
-    "account": "000000000000",
+    "name": "NozAI",
+    "description": "NozAI is a powerful AI-driven platform designed to enhance business operations through advanced analytics and automation. It leverages machine learning algorithms to provide actionable insights, optimize workflows, and improve decision-making processes.",
+    "account": "862558960374",
     "region": "us-east-1"
   }
 ]

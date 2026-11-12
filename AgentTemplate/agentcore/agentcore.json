@@ -1,15 +1,15 @@
 {
   "$schema": "https://schema.agentcore.aws.dev/v1/agentcore.json",
-  "name": "AgentTemplate",
+  "name": "NozAI",
   "version": 1,
   "managedBy": "CDK",
   "tags": {
     "agentcore:created-by": "agentcore-cli",
-    "agentcore:project-name": "AgentTemplate"
+    "agentcore:project-name": "NozAI"
   },
   "runtimes": [
     {
-      "name": "AgentTemplate",
+      "name": "noz_ai_runtime",
       "build": "CodeZip",
       "entrypoint": "main.py",
       "codeLocation": "app/agent-template/",
@@ -24,21 +24,9 @@
   ],
   "memories": [
     {
-      "name": "AgentTemplateMemory",
+      "name": "noz_ai",
       "eventExpiryDuration": 30,
       "strategies": []
-    }
-  ],
-  "knowledgeBases": [
-    {
-      "type": "AgentCoreKnowledgeBase",
-      "name": "MyKnowledgeBase",
-      "dataSources": [
-        {
-          "type": "S3",
-          "uri": "s3://replace-with-your-kb-bucket/kb/"
-        }
-      ]
     }
   ],
   "credentials": [],
@@ -46,16 +34,16 @@
   "onlineEvalConfigs": [],
   "agentCoreGateways": [
     {
-      "name": "my-gateway",
+      "name": "noz-ai",
       "protocolType": "MCP",
-      "description": "Gateway for my-gateway",
+      "description": "Gateway for noz-ai",
       "targets": [
         {
-          "name": "my-tool-example-target",
+          "name": "noz-ai-target",
           "targetType": "lambda",
           "toolDefinitions": [
             {
-              "name": "tool_name",
+              "name": "tool_noz_ai",
               "description": "tool_description",
               "inputSchema": {
                 "type": "object",
@@ -129,20 +117,9 @@
             },
             "pythonVersion": "PYTHON_3_14",
             "timeout": 60,
-            "memorySize": 512,
-            "iamPolicy": {
-              "Version": "2012-10-17",
-              "Statement": [
-                {
-                  "Sid": "ReadRuntimeConfig",
-                  "Effect": "Allow",
-                  "Action": "ssm:GetParameter",
-                  "Resource": "arn:aws:ssm:us-east-1:<ACCOUNT_ID>:parameter/<PATH>"
-                }
-              ]
+            "memorySize": 512
             }
           }
-        }
       ],
       "authorizerType": "AWS_IAM",
       "enableSemanticSearch": false,
