@@ -32,6 +32,20 @@
         "arn:aws:bedrock-agentcore:us-east-1:862558960374:workload-identity-directory/default",
         "arn:aws:bedrock-agentcore:us-east-1:862558960374:workload-identity-directory/default/workload-identity/NozAI_noz_ai_runtime-*"
       ]
+    },
+    {
+      "Sid": "AgentCoreBrowser",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:StartBrowserSession",
+        "bedrock-agentcore:StopBrowserSession",
+        "bedrock-agentcore:GetBrowserSession",
+        "bedrock-agentcore:ListBrowserSessions",
+        "bedrock-agentcore:UpdateBrowserStream",
+        "bedrock-agentcore:ConnectBrowserAutomationStream",
+        "bedrock-agentcore:ConnectBrowserLiveViewStream"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:us-east-1:aws:browser/*"
     }
   ]
 }
