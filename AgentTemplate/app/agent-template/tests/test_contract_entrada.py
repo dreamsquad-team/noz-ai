@@ -16,14 +16,14 @@ def entrada_valida(**mudancas):
     return {**base, **mudancas}
 
 
-def test_aceita_foto_com_referencia_s3():
-    prova = ProvaEntrada(**entrada_valida(tipo="foto", conteudo="s3://bucket-teste/desafios/foto.jpg"))
-    assert prova.conteudo == "s3://bucket-teste/desafios/foto.jpg"
+def test_aceita_foto_no_s3():
+    prova = ProvaEntrada(**entrada_valida(tipo="foto", conteudo="desafios/foto.jpg"))
+    assert prova.conteudo == "desafios/foto.jpg"
 
 
 def test_aceita_extensao_maiuscula():
-    prova = ProvaEntrada(**entrada_valida(tipo="foto", conteudo="s3://bucket-teste/desafios/foto.JPG"))
-    assert prova.conteudo == "s3://bucket-teste/desafios/foto.JPG"
+    prova = ProvaEntrada(**entrada_valida(tipo="foto", conteudo="desafios/foto.JPG"))
+    assert prova.conteudo == "desafios/foto.JPG"
 
 
 def test_aceita_link_https():

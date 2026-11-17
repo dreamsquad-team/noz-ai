@@ -41,9 +41,9 @@ def test_aceita_confianca_minima():
     assert prova.confianca == 0.0
 
 
-def test_aceita_confianca_decimal():
-    prova = ProvaSaida(**saida_valida(confianca=0.5))
-    assert prova.confianca == 0.5
+def test_arredonda_confianca():
+    prova = ProvaSaida(**saida_valida(confianca=0.555))
+    assert prova.confianca == 0.56
 
 
 def test_rejeita_status_invalido():
