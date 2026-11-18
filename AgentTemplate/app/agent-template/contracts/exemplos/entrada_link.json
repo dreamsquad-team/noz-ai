@@ -1,0 +1,10 @@
+{
+  "id_envio": "7c9e6679-7425-40de-944b-e07fc1f90ae7",
+  "id_desafio": "missao-divulgue-produto",
+  "id_empresa": "empresa-demo",
+  "tipo": "link",
+  "conteudo": "https://www.instagram.com/p/exemplo123/",
+  "descricao": "Publiquei o produto no feed e marquei a marca.",
+  "regras_desafio": "Missão: Divulgue o produto. Ação: publicar nas redes (10 pontos a cada registro). Exige o link da publicação.",
+  "contexto_extra": "Marca a ser citada: @marca-exemplo"
+}

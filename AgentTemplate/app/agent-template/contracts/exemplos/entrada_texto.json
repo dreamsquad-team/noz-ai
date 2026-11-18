@@ -1,0 +1,9 @@
+{
+  "id_envio": "d4e5f6a7-b8c9-4d0e-9f1a-2b3c4d5e6f70",
+  "id_desafio": "missao-conte-experiencia",
+  "id_empresa": "empresa-demo",
+  "tipo": "texto",
+  "conteudo": "Comprei o produto na loja em 12/11 e usei por uma semana. Gostei da textura e recomendo.",
+  "descricao": "Relato da minha experiência com o produto.",
+  "regras_desafio": "Missão: Conte sua experiência. Ação: enviar relato (10 pontos a cada registro). Exige texto com pelo menos duas frases sobre o produto."
+}

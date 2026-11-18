@@ -1,0 +1,41 @@
+{
+  "properties": {
+    "id_envio": {
+      "description": "Identificador único do envio da prova",
+      "format": "uuid",
+      "title": "Id Envio",
+      "type": "string"
+    },
+    "status": {
+      "description": "Decisão: aprovado, reprovado ou para análise",
+      "enum": [
+        "aprovado",
+        "reprovado",
+        "para_analise"
+      ],
+      "title": "Status",
+      "type": "string"
+    },
+    "confianca": {
+      "description": "Confiança na decisão, de 0 a 1, com até duas casas decimais",
+      "maximum": 1,
+      "minimum": 0,
+      "title": "Confianca",
+      "type": "number"
+    },
+    "justificativa": {
+      "description": "Motivo ou explicação da decisão tomada pelo agente, para o revisor humano",
+      "minLength": 1,
+      "title": "Justificativa",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_envio",
+    "status",
+    "confianca",
+    "justificativa"
+  ],
+  "title": "ProvaSaida",
+  "type": "object"
+}
