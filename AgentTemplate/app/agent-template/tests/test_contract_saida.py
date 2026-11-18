@@ -5,18 +5,45 @@ import pytest
 
 def saida_valida(**mudancas):
     base = {
-        "id": "1",
+        "id_envio": "3f2b8c1e-5a4d-4b7e-9c10-2d6e8f0a1b23",
         "status": "aprovado",
-        "confianca": 85,
+        "confianca": 0.75,
+        "justificativa": "A prova cumpre as regras do desafio.",
     }
     return {**base, **mudancas}
 
 
 def test_aceita_saida_valida():
     prova = ProvaSaida(**saida_valida())
-    assert prova.id == "1"
+    assert str(prova.id_envio) == "3f2b8c1e-5a4d-4b7e-9c10-2d6e8f0a1b23"
     assert prova.status == "aprovado"
-    assert prova.confianca == 85
+    assert prova.confianca == 0.75
+    assert prova.justificativa == "A prova cumpre as regras do desafio."
+
+
+def test_aceita_status_reprovado():
+    prova = ProvaSaida(**saida_valida(status="reprovado"))
+    assert prova.status == "reprovado"
+
+
+def test_aceita_status_para_analise():
+    prova = ProvaSaida(**saida_valida(status="para_analise"))
+    assert prova.status == "para_analise"
+
+
+def test_aceita_confianca_maxima():
+    prova = ProvaSaida(**saida_valida(confianca=1.0))
+    assert prova.confianca == 1.0
+
+
+def test_aceita_confianca_minima():
+    prova = ProvaSaida(**saida_valida(confianca=0.0))
+    assert prova.confianca == 0.0
+
+
+def test_arredonda_confianca():
+    prova = ProvaSaida(**saida_valida(confianca=0.555))
+    assert prova.confianca == 0.56
 
 
 def test_rejeita_status_invalido():
@@ -26,22 +53,22 @@ def test_rejeita_status_invalido():
 
 def test_rejeita_confianca_menor_que_zero():
     with pytest.raises(ValidationError):
-        ProvaSaida(**saida_valida(confianca=-1))  # Confianca menor que zero
+        ProvaSaida(**saida_valida(confianca=-1.0))  # Confianca menor que zero
 
 
 def test_rejeita_confianca_maior_que_cem():
     with pytest.raises(ValidationError):
-        ProvaSaida(**saida_valida(confianca=101))  # Confianca maior que cem
+        ProvaSaida(**saida_valida(confianca=101.0))  # Confianca maior que cem
 
 
 def test_rejeita_id_vazio():
     with pytest.raises(ValidationError):
-        ProvaSaida(**saida_valida(id=""))  # ID vazio
+        ProvaSaida(**saida_valida(id_envio=""))  # ID vazio
 
 
 def test_rejeita_id_ausente():
     dados = saida_valida()
-    del dados["id"]
+    del dados["id_envio"]
     with pytest.raises(ValidationError):
         ProvaSaida(**dados)  # ID ausente
 
@@ -58,11 +85,6 @@ def test_rejeita_status_ausente():
     del dados["status"]
     with pytest.raises(ValidationError):
         ProvaSaida(**dados)  # Status ausente
-
-
-def test_rejeita_confianca_nao_inteiro():
-    with pytest.raises(ValidationError):
-        ProvaSaida(**saida_valida(confianca=50.5))  # Confianca não é inteiro
 
 
 def test_rejeita_confianca_nao_numero():

@@ -1,0 +1,9 @@
+{
+  "id_envio": "3f2b8c1e-5a4d-4b7e-9c10-2d6e8f0a1b23",
+  "id_desafio": "missao-teste-noz",
+  "id_empresa": "empresa-demo",
+  "tipo": "foto",
+  "conteudo": "comprovacoes/2026/11/12/exemplo.jpg",
+  "descricao": "Nota fiscal de venda do cliente.",
+  "regras_desafio": "Missão: Teste Noz. Ação: teste (10 pontos a cada registro). Exige foto."
+}

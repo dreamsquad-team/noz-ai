@@ -1,0 +1,74 @@
+{
+  "properties": {
+    "id_envio": {
+      "description": "Identificador único do envio da prova",
+      "format": "uuid",
+      "title": "Id Envio",
+      "type": "string"
+    },
+    "id_desafio": {
+      "description": "Identificador da missão(desafio)",
+      "minLength": 1,
+      "title": "Id Desafio",
+      "type": "string"
+    },
+    "id_empresa": {
+      "description": "Identificador da empresa",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "tipo": {
+      "description": "Tipo de conteúdo enviado: foto, link ou texto",
+      "enum": [
+        "foto",
+        "link",
+        "texto"
+      ],
+      "title": "Tipo",
+      "type": "string"
+    },
+    "conteudo": {
+      "description": "Foto: chave do objeto no S3, sem bucket, terminando em jpg, jpeg, png, gif ou webp. Link: URL http ou https. Texto: texto não vazio.",
+      "minLength": 1,
+      "title": "Conteudo",
+      "type": "string"
+    },
+    "descricao": {
+      "description": "Descrição escrita pelo participante ao enviar a comprovação",
+      "minLength": 1,
+      "title": "Descricao",
+      "type": "string"
+    },
+    "regras_desafio": {
+      "description": "Regras da missão, montadas pelo backend: descrição, pontuação e se exige foto",
+      "minLength": 1,
+      "title": "Regras Desafio",
+      "type": "string"
+    },
+    "contexto_extra": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Informações adicionais sobre o contexto do desafio, se houver",
+      "title": "Contexto Extra"
+    }
+  },
+  "required": [
+    "id_envio",
+    "id_desafio",
+    "id_empresa",
+    "tipo",
+    "conteudo",
+    "descricao",
+    "regras_desafio"
+  ],
+  "title": "ProvaEntrada",
+  "type": "object"
+}
