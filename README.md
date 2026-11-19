@@ -3,7 +3,6 @@
 Boilerplate de agente de IA (Strands Agents) publicado no AgentCore Runtime da conta AWS da NOZ. É o ponto de partida
 dos agentes do projeto (Validação, Curadoria, Conhecimento, Recomendação e Moderação).
 
-Card: ATHENA-946.
 
 ## Informações do deploy
 
