@@ -100,12 +100,12 @@ def test_rejeita_foto_vazia():
 
 def test_rejeita_foto_s3_sem_chave():
     with pytest.raises(ValidationError):
-        ProvaEntrada(**entrada_valida(tipo="foto", conteudo="s3://bucket-teste/"))  # S3 sem chave
+        ProvaEntrada(**entrada_valida(tipo="foto", conteudo="comprovacoes/foto"))  # S3 sem chave
 
 
 def test_rejeita_foto_s3_sem_extensao_imagem():
     with pytest.raises(ValidationError):
-        ProvaEntrada(**entrada_valida(tipo="foto", conteudo="s3://bucket-teste/foto.pdf"))  # S3 sem extensão de imagem
+        ProvaEntrada(**entrada_valida(tipo="foto", conteudo="comprovacoes/foto.pdf"))  # S3 sem extensão de imagem
 
 
 def test_rejeita_s3_invalido():
