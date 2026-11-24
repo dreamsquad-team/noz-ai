@@ -15,18 +15,22 @@ dos agentes do projeto (Validação, Curadoria, Conhecimento, Recomendação e M
 | Runtime | `noz_ai_runtime` |
 | ARN do runtime | `arn:aws:bedrock-agentcore:us-east-1:862558960374:runtime/NozAI_noz_ai_runtime-oQ23lC9WVZ` |
 | Memória | `noz_ai` (`NozAI_noz_ai-Y3OiPd6lk2`) |
-| Modelo | `us.amazon.nova-pro-v1:0` (Amazon Nova Pro, Amazon Bedrock) |
+| Modelo | `us.anthropic.claude-haiku-5-5` |
 
 
 ## Escopo
 
-Esta versão publica apenas o runtime e a memória de curto prazo. Gateway, Lambda e policy engine do boilerplate foram
-removidos do `agentcore.json` e entram em outra task. A pasta `lambda/` continua no repositório, sem ser publicada.
+O deploy do `agentcore` publica apenas o runtime e a memória de curto prazo. Gateway, Lambda e policy engine do
+boilerplate foram removidos do `agentcore.json` e entram em outra task. A pasta `lambda/` continua no repositório, sem
+ser publicada.
+
+As filas SQS (entrada e saída, cada uma com DLQ) e o bucket S3 de evidências **não** fazem parte do `agentcore deploy`.
+Eles são gerenciados por Terraform em `infra/terraform/`.
 
 ## Estrutura
 
 ```
-AgentTemplate/
+noz-ai/
 ├── agentcore/
 │   ├── agentcore.json      # Recursos: runtime e memória
 │   ├── aws-targets.json    # Conta e região do deploy
@@ -34,10 +38,14 @@ AgentTemplate/
 │   └── cdk/                # Infraestrutura gerada pelo CLI (não editar)
 ├── app/agent-template/     # Código do agente (Python)
 │   ├── main.py             # Entrypoint (invoke)
-│   ├── agent/factory.py    # Monta o Agent
+│   ├── agent/
+│   │   ├── factory.py      # Monta o Agent
+│   │   └── contract.py     # Contratos de entrada e saída (Pydantic)
+│   ├── contracts/          # JSON Schemas e exemplos dos contratos
 │   ├── model/load.py       # Modelo do Bedrock
 │   ├── prompts/v1.txt      # System prompt
 │   └── tests/
+├── infra/terraform/        # Filas SQS e bucket S3 de evidências (Terraform)
 └── lambda/my-tool/         # Lambda de exemplo (ainda não publicada)
 ```
 
@@ -101,6 +109,36 @@ agentcore invoke --runtime noz_ai_runtime --target NozAI \
 ```
 
 Logs do runtime: `agentcore logs runtime`.
+
+## Contratos de entrada e saída
+
+Os contratos do agente de Validação estão em `app/agent-template/agent/contract.py`. Os JSON Schemas são gerados a partir
+dos modelos e ficam em `app/agent-template/contracts/`, junto com exemplos. Depois de alterar um modelo, regenere:
+
+```bash
+cd app/agent-template
+uv run python -m contracts.gerar_schemas
+```
+
+Os testes comparam o schema salvo com o do modelo e validam os exemplos, então um schema desatualizado quebra a suíte.
+
+## Infraestrutura (Terraform)
+
+Filas SQS e bucket S3 de evidências, em `infra/terraform/`.
+
+| Recurso | Descrição |
+|---|---|
+| Fila de entrada + DLQ | Pedidos de validação enviados pelo backend da NOZ |
+| Fila de saída + DLQ | Resultados lidos pelo backend da NOZ |
+| Bucket de evidências | Privado, criptografado, com expiração por lifecycle |
+
+```bash
+cd infra/terraform/environments/noz
+terraform init
+terraform plan
+```
+
+Leia o `plan` antes de qualquer `apply`. O state fica em bucket S3 remoto e nunca vai para o git.
 
 ## Notas
 
