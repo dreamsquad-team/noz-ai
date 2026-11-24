@@ -1,4 +1,46 @@
 {
+  "$defs": {
+    "RegraDesafio": {
+      "properties": {
+        "nome": {
+          "description": "Nome da ação que o participante precisa realizar",
+          "minLength": 1,
+          "title": "Nome",
+          "type": "string"
+        },
+        "descricao": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "description": "Descrição da ação, com o que conta como cumprir. Pode vir vazia",
+          "title": "Descricao"
+        },
+        "tipo_medicao": {
+          "description": "Como a ação é medida: vezes (conta ocorrências), quantidade (soma um valor com o rótulo), percentual_meta (vale o maior percentual atingido), conquista_unica (acontece uma única vez)",
+          "enum": [
+            "vezes",
+            "quantidade",
+            "percentual_meta",
+            "conquista_unica"
+          ],
+          "title": "Tipo Medicao",
+          "type": "string"
+        }
+      },
+      "required": [
+        "nome",
+        "tipo_medicao"
+      ],
+      "title": "RegraDesafio",
+      "type": "object"
+    }
+  },
   "properties": {
     "id_envio": {
       "description": "Identificador único do envio da prova",
@@ -41,10 +83,8 @@
       "type": "string"
     },
     "regras_desafio": {
-      "description": "Regras da missão, montadas pelo backend: descrição, pontuação e se exige foto",
-      "minLength": 1,
-      "title": "Regras Desafio",
-      "type": "string"
+      "$ref": "#/$defs/RegraDesafio",
+      "description": "Ação do desafio: nome, descrição e tipo de medição"
     },
     "contexto_extra": {
       "anyOf": [

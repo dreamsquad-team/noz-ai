@@ -1,4 +1,4 @@
-from agent.contract import ProvaEntrada
+from agent.contract import ProvaEntrada, RegraDesafio
 from pydantic import ValidationError
 import pytest
 
@@ -10,8 +10,17 @@ def entrada_valida(**mudancas):
         "id_empresa": "empresa-teste",
         "tipo": "texto",
         "conteudo": "Conteúdo de teste",
-        "regras_desafio": "Regras do desafio de teste",
+        "regras_desafio": regra_valida(),
         "descricao": "descrição de teste",
+    }
+    return {**base, **mudancas}
+
+
+def regra_valida(**mudancas):
+    base = {
+        "nome": "teste",
+        "descricao": "Enviar a nota fiscal de uma venda",
+        "tipo_medicao": "vezes",
     }
     return {**base, **mudancas}
 
@@ -42,8 +51,11 @@ def test_aceita_descricao():
 
 
 def test_aceita_regras_desafio():
-    prova = ProvaEntrada(**entrada_valida(regras_desafio="Regras do desafio de teste"))
-    assert prova.regras_desafio == "Regras do desafio de teste"
+    prova = ProvaEntrada(**entrada_valida(regras_desafio=regra_valida()))
+    assert isinstance(prova.regras_desafio, RegraDesafio)
+    assert prova.regras_desafio.nome == "teste"
+    assert prova.regras_desafio.descricao == "Enviar a nota fiscal de uma venda"
+    assert prova.regras_desafio.tipo_medicao == "vezes"
 
 
 def test_aceita_id_desafio():
@@ -133,9 +145,9 @@ def test_rejeita_descricao_vazia():
         ProvaEntrada(**entrada_valida(descricao=""))  # Descrição vazia
 
 
-def test_rejeita_regras_desafio_vazia():
+def test_rejeita_regras_desafio_como_texto():
     with pytest.raises(ValidationError):
-        ProvaEntrada(**entrada_valida(regras_desafio=""))  # Regras do desafio vazias
+        ProvaEntrada(**entrada_valida(regras_desafio="Regra do desafio de teste"))  # Regras do desafio como texto
 
 
 def test_rejeita_descricao_ausente():
@@ -174,3 +186,40 @@ def test_rejeita_id_empresa_ausente():
     del dados["id_empresa"]
     with pytest.raises(ValidationError):
         ProvaEntrada(**dados)  # ID da empresa ausente
+
+
+@pytest.mark.parametrize("tipo", ["vezes", "quantidade", "percentual_meta", "conquista_unica"])
+def test_aceita_cada_tipo_de_medicao(tipo):
+    prova = ProvaEntrada(**entrada_valida(regras_desafio=regra_valida(tipo_medicao=tipo)))
+    assert prova.regras_desafio.tipo_medicao == tipo
+
+
+def test_aceita_regra_semm_descricao():
+    regra = regra_valida()
+    del regra["descricao"]
+    prova = ProvaEntrada(**entrada_valida(regras_desafio=regra))
+    assert prova.regras_desafio.descricao is None
+
+
+def test_rejeita_regra_nome_vazio():
+    with pytest.raises(ValidationError):
+        ProvaEntrada(**entrada_valida(regras_desafio=regra_valida(nome="")))  # Nome da ação vazio
+
+
+def test_rejeita_regra_nome_ausente():
+    regra = regra_valida()
+    del regra["nome"]
+    with pytest.raises(ValidationError):
+        ProvaEntrada(**entrada_valida(regras_desafio=regra))  # Nome da ação ausente
+
+
+def test_rejeita_tipo_medicao_invalido():
+    with pytest.raises(ValidationError):
+        ProvaEntrada(**entrada_valida(regras_desafio=regra_valida(tipo_medicao="count")))  # Valor fora da lista
+
+
+def test_rejeita_tipo_medicao_ausente():
+    regra = regra_valida()
+    del regra["tipo_medicao"]
+    with pytest.raises(ValidationError):
+        ProvaEntrada(**entrada_valida(regras_desafio=regra))  # Tipo de medição ausente

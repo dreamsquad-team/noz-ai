@@ -5,6 +5,10 @@
   "tipo": "link",
   "conteudo": "https://www.instagram.com/p/exemplo123/",
   "descricao": "Publiquei o produto no feed e marquei a marca.",
-  "regras_desafio": "Missão: Divulgue o produto. Ação: publicar nas redes (10 pontos a cada registro). Exige o link da publicação.",
+  "regras_desafio": {
+    "nome": "publicar nas redes",
+    "descricao": "Publicar uma foto do produto citando a marca",
+    "tipo_medicao": "vezes"
+  },
   "contexto_extra": "Marca a ser citada: @marca-exemplo"
 }

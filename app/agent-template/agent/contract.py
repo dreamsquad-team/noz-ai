@@ -5,6 +5,14 @@ from pydantic import BaseModel, Field, model_validator, field_validator
 EXTENSOES_IMAGEM = (".jpg", ".jpeg", ".png", ".gif", ".webp")
 
 
+class RegraDesafio(BaseModel):
+    nome: str = Field(min_length=1, description="Nome da ação que o participante precisa realizar")
+    descricao: str | None = Field(default=None, description="Descrição da ação, com o que conta como cumprir. Pode vir vazia")
+    tipo_medicao: Literal["vezes", "quantidade", "percentual_meta", "conquista_unica"] = Field(
+        description="Como a ação é medida: vezes (conta ocorrências), quantidade (soma um valor com o rótulo), percentual_meta (vale o maior percentual atingido), conquista_unica (acontece uma única vez)"
+    )
+
+
 class ProvaEntrada(BaseModel):
     id_envio: UUID = Field(description="Identificador único do envio da prova")
     id_desafio: str = Field(min_length=1, description="Identificador da missão(desafio)")
@@ -12,7 +20,7 @@ class ProvaEntrada(BaseModel):
     tipo: Literal["foto", "link", "texto"] = Field(description="Tipo de conteúdo enviado: foto, link ou texto")
     conteudo: str = Field(min_length=1, description="Foto: chave do objeto no S3, sem bucket, terminando em jpg, jpeg, png, gif ou webp. Link: URL http ou https. Texto: texto não vazio.")
     descricao: str = Field(min_length=1, description="Descrição escrita pelo participante ao enviar a comprovação")
-    regras_desafio: str = Field(min_length=1, description="Regras da missão, montadas pelo backend: descrição, pontuação e se exige foto")
+    regras_desafio: RegraDesafio = Field(description="Ação do desafio: nome, descrição e tipo de medição")
     contexto_extra: str | None = Field(default=None, description="Informações adicionais sobre o contexto do desafio, se houver")
 
     @model_validator(mode="after")
