@@ -11,8 +11,6 @@ import {
 import { CfnOutput, Stack, type StackProps } from 'aws-cdk-lib';
 import * as iam from 'aws-cdk-lib/aws-iam';
 import { Construct } from 'constructs';
-import { FilasValidacao } from './filas-validacao';
-import { BucketEvidencias } from './bucket-evidencias';
 
 /**
  * Harness deployment config: role-scoped fields (for IAM role + container build)
@@ -95,10 +93,6 @@ function isPaymentEligibleAgent(agent: { entrypoint?: string; protocol?: string 
 export class AgentCoreStack extends Stack {
   /** The AgentCore application containing all agent environments */
   public readonly application: AgentCoreApplication;
-  /** Filas SQS (entrada, saída e DLQs) do agente de validação */
-  public readonly filas: FilasValidacao;
-  /** Bucket S3 das evidências (fotos) enviadas pelos participantes */
-  public readonly evidencias: BucketEvidencias;
 
   constructor(scope: Construct, id: string, props: AgentCoreStackProps) {
     super(scope, id, props);
@@ -245,13 +239,6 @@ export class AgentCoreStack extends Stack {
         });
       }
     }
-
-    this.filas = new FilasValidacao(this, 'FilasValidacao');
-    this.evidencias = new BucketEvidencias(this, 'BucketEvidencias');
-
-    new CfnOutput(this, 'FilaEntradaUrl', { value: this.filas.entrada.queueUrl });
-    new CfnOutput(this, 'FilaSaidaUrl', { value: this.filas.saida.queueUrl });
-    new CfnOutput(this, 'BucketEvidenciasNome', { value: this.evidencias.bucket.bucketName });
 
     // Stack-level output
     new CfnOutput(this, 'StackNameOutput', {
