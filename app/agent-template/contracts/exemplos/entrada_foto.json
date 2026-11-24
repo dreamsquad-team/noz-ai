@@ -5,5 +5,9 @@
   "tipo": "foto",
   "conteudo": "comprovacoes/2026/11/12/exemplo.jpg",
   "descricao": "Nota fiscal de venda do cliente.",
-  "regras_desafio": "Missão: Teste Noz. Ação: teste (10 pontos a cada registro). Exige foto."
+  "regras_desafio": {
+    "nome": "teste",
+    "descricao": "Enviar a nota fiscal de uma venda",
+    "tipo_medicao": "vezes"
+  }
 }
