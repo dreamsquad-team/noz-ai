@@ -1,0 +1,7 @@
+aws_region     = "us-east-1"
+aws_account_id = "862558960374"
+
+tags = {
+    Projeto = "noz-ai"
+    Gerido  = "terraform"
+}
