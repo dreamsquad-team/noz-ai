@@ -1,8 +1,7 @@
 """Cliente MCP apontado ao AgentCore Gateway.
 
-O Gateway deste projeto sobe com `authorizerType: AWS_IAM` (ver
-agentcore.json), então a requisição precisa vir assinada com a execution role
-do Runtime — é o que `mcp_client/sigv4.py` faz.
+O Gateway sobe com `authorizerType: AWS_IAM`, então a requisição precisa vir
+assinada com a execution role do Runtime — é o que `mcp_client/sigv4.py` faz.
 
 Não há aqui um context manager de sessão. Desde o Strands 1.53 o `MCPClient` é
 um `ToolProvider` com `continue_on_error`: ele abre a sessão, lista as tools e,

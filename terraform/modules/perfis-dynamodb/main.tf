@@ -17,6 +17,24 @@ resource "aws_dynamodb_table" "perfis" {
     type = "S"
   }
 
+  attribute {
+    name = "empresa_id"
+    type = "S"
+  }
+
+  attribute {
+    name = "tipo_id"
+    type = "S"
+  }
+
+  # Listar perfis de uma empresa (ex.: todos os usuários) sem Scan.
+  global_secondary_index {
+    name            = "por-empresa"
+    hash_key        = "empresa_id"
+    range_key       = "tipo_id"
+    projection_type = "ALL"
+  }
+
   point_in_time_recovery {
     enabled = var.habilitar_pitr
   }
@@ -41,6 +59,6 @@ data "aws_iam_policy_document" "acesso_runtime" {
   statement {
     sid       = "PerfisConhecimento"
     actions   = ["dynamodb:GetItem", "dynamodb:PutItem", "dynamodb:UpdateItem", "dynamodb:Query", "dynamodb:BatchGetItem", "dynamodb:BatchWriteItem"]
-    resources = [aws_dynamodb_table.perfis.arn]
+    resources = [aws_dynamodb_table.perfis.arn, "${aws_dynamodb_table.perfis.arn}/index/por-empresa"]
   }
 }
