@@ -30,9 +30,17 @@ resource "aws_dynamodb_table" "perfis" {
   # Listar perfis de uma empresa (ex.: todos os usuários) sem Scan.
   global_secondary_index {
     name            = "por-empresa"
-    hash_key        = "empresa_id"
-    range_key       = "tipo_id"
     projection_type = "ALL"
+
+    key_schema {
+      attribute_name = "empresa_id"
+      key_type       = "HASH"
+    }
+
+    key_schema {
+      attribute_name = "tipo_id"
+      key_type       = "RANGE"
+    }
   }
 
   point_in_time_recovery {
