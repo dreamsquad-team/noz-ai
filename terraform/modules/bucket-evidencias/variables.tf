@@ -7,7 +7,7 @@ variable "prefixo" {
 variable "dias_para_expirar" {
   description = "Dias até as evidências serem apagadas automaticamente"
   type        = number
-  default     = 90 # TODO: definir com a NOZ (LGPD)
+  default     = 90
 
   validation {
     condition     = var.dias_para_expirar >= 1
