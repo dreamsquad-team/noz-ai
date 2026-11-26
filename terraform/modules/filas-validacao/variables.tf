@@ -7,7 +7,7 @@ variable "prefixo" {
 variable "visibility_timeout_seconds" {
   description = "Tempo que a mensagem fica invisível enquanto é processada. Deve ser maior que o timeout da Lambda"
   type        = number
-  default     = 360 # TODO: confirmar (6 minutos)
+  default     = 360
 
   validation {
     condition     = var.visibility_timeout_seconds >= 0 && var.visibility_timeout_seconds <= 43200
@@ -18,7 +18,7 @@ variable "visibility_timeout_seconds" {
 variable "max_receive_count" {
   description = "Quantas vezes a mensagem é entregue antes de ir para a DLQ"
   type        = number
-  default     = 3 # TODO: confirmar
+  default     = 3
 
   validation {
     condition     = var.max_receive_count >= 1
