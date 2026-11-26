@@ -1,0 +1,1 @@
+Prompt do agente de Conhecimento. Será escrito na task do agente (T08).
