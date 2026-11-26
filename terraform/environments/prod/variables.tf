@@ -12,19 +12,19 @@ variable "aws_account_id" {
 variable "visibility_timeout_seconds" {
   description = "Visibility timeout da fila de entrada. Deve ser maior que o timeout da Lambda"
   type        = number
-  default     = 360 # TODO: confirmar
+  default     = 360
 }
 
 variable "max_receive_count" {
   description = "Tentativas antes da mensagem ir pra DLQ"
   type        = number
-  default     = 3 # TODO: confirmar
+  default     = 3
 }
 
 variable "dias_para_expirar" {
   description = "Dias até as evidências serem apagadas"
   type        = number
-  default     = 90 # TODO: confirmar
+  default     = 90
 }
 
 variable "tags" {

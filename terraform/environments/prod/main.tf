@@ -19,3 +19,12 @@ module "bucket_evidencias" {
 
   dias_para_expirar = var.dias_para_expirar
 }
+
+module "iam_backend_noz" {
+  source = "../../modules/iam"
+
+  entrada_queue_arn  = module.filas_validacao.entrada_arn
+  saida_queue_arn    = module.filas_validacao.saida_arn
+  bucket_arn         = module.bucket_evidencias.arn
+  backend_role_names = [] # Preencher quando informarem a role
+}
