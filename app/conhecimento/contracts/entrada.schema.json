@@ -1,0 +1,54 @@
+{
+  "description": "Disparo de uma execução agendada.",
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa a processar, ou 'todas' para todas as empresas",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "desde": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Início da janela. Vazio = desde a última execução",
+      "title": "Desde"
+    },
+    "ate": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Fim da janela. Vazio = agora",
+      "title": "Ate"
+    },
+    "modo": {
+      "default": "real",
+      "description": "Fonte dos dados: MCP real ou MCP mockado",
+      "enum": [
+        "real",
+        "mock"
+      ],
+      "title": "Modo",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_empresa"
+  ],
+  "title": "ConhecimentoEntrada",
+  "type": "object"
+}

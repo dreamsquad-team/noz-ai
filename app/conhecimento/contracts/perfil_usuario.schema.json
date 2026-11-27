@@ -1,0 +1,105 @@
+{
+  "$defs": {
+    "Interesse": {
+      "properties": {
+        "topico": {
+          "description": "Tópico de interesse, ex.: pintura",
+          "minLength": 1,
+          "title": "Topico",
+          "type": "string"
+        },
+        "peso": {
+          "description": "Força do interesse, de 0 a 1, com até duas casas decimais",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Peso",
+          "type": "number"
+        },
+        "evidencias": {
+          "description": "Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidencias",
+          "type": "array"
+        }
+      },
+      "required": [
+        "topico",
+        "peso",
+        "evidencias"
+      ],
+      "title": "Interesse",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa do usuário",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "id_usuario": {
+      "description": "Usuário",
+      "minLength": 1,
+      "title": "Id Usuario",
+      "type": "string"
+    },
+    "interesses": {
+      "description": "Interesses inferidos, do mais forte ao mais fraco",
+      "items": {
+        "$ref": "#/$defs/Interesse"
+      },
+      "title": "Interesses",
+      "type": "array"
+    },
+    "canal_preferido": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Canal mais usado",
+      "title": "Canal Preferido"
+    },
+    "dispositivo_preferido": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Dispositivo mais usado",
+      "title": "Dispositivo Preferido"
+    },
+    "atualizado_em": {
+      "description": "Quando o perfil foi atualizado",
+      "format": "date-time",
+      "title": "Atualizado Em",
+      "type": "string"
+    },
+    "versao": {
+      "description": "Versão do perfil, incrementada a cada atualização",
+      "minimum": 1,
+      "title": "Versao",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "id_usuario",
+    "atualizado_em",
+    "versao"
+  ],
+  "title": "PerfilUsuario",
+  "type": "object"
+}

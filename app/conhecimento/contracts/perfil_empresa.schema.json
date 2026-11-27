@@ -1,0 +1,72 @@
+{
+  "$defs": {
+    "Interesse": {
+      "properties": {
+        "topico": {
+          "description": "Tópico de interesse, ex.: pintura",
+          "minLength": 1,
+          "title": "Topico",
+          "type": "string"
+        },
+        "peso": {
+          "description": "Força do interesse, de 0 a 1, com até duas casas decimais",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Peso",
+          "type": "number"
+        },
+        "evidencias": {
+          "description": "Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidencias",
+          "type": "array"
+        }
+      },
+      "required": [
+        "topico",
+        "peso",
+        "evidencias"
+      ],
+      "title": "Interesse",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "temas": {
+      "description": "Temas sobre os quais a empresa publica",
+      "items": {
+        "$ref": "#/$defs/Interesse"
+      },
+      "title": "Temas",
+      "type": "array"
+    },
+    "atualizado_em": {
+      "description": "Quando o perfil foi atualizado",
+      "format": "date-time",
+      "title": "Atualizado Em",
+      "type": "string"
+    },
+    "versao": {
+      "description": "Versão do perfil",
+      "minimum": 1,
+      "title": "Versao",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "atualizado_em",
+    "versao"
+  ],
+  "title": "PerfilEmpresa",
+  "type": "object"
+}

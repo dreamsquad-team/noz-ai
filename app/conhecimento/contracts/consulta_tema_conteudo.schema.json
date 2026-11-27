@@ -1,0 +1,22 @@
+{
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa. Obrigatória",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "id_conteudo": {
+      "description": "Conteúdo",
+      "minLength": 1,
+      "title": "Id Conteudo",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "id_conteudo"
+  ],
+  "title": "ConsultaTemaConteudo",
+  "type": "object"
+}

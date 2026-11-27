@@ -1,0 +1,22 @@
+{
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa. Obrigatória",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "id_usuario": {
+      "description": "Usuário",
+      "minLength": 1,
+      "title": "Id Usuario",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "id_usuario"
+  ],
+  "title": "ConsultaPerfilUsuario",
+  "type": "object"
+}

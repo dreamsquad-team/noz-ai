@@ -1,0 +1,11 @@
+{
+  "id_empresa": "emp-tintas",
+  "id_usuario": "u-emp-tintas-01",
+  "interesses": [
+    {"topico": "pintura", "peso": 0.82, "evidencias": ["e-0012", "c-emp-tintas-003"]}
+  ],
+  "canal_preferido": "app",
+  "dispositivo_preferido": "android",
+  "atualizado_em": "2026-11-27T03:00:00Z",
+  "versao": 3
+}

@@ -1,0 +1,22 @@
+{
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa. Obrigatória",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "tag": {
+      "description": "Tag que define o grupo, ex.: pintor",
+      "minLength": 1,
+      "title": "Tag",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "tag"
+  ],
+  "title": "ConsultaPerfilGrupo",
+  "type": "object"
+}

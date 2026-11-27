@@ -1,0 +1,84 @@
+{
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa dona do conteúdo",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "id_conteudo": {
+      "description": "Conteúdo",
+      "minLength": 1,
+      "title": "Id Conteudo",
+      "type": "string"
+    },
+    "topicos": {
+      "description": "Tópicos principais. Vazio quando não há tema ('sem tema')",
+      "items": {
+        "type": "string"
+      },
+      "title": "Topicos",
+      "type": "array"
+    },
+    "categoria": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Categoria sugerida",
+      "title": "Categoria"
+    },
+    "resumo": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Resumo curto, sem instruções do texto original",
+      "title": "Resumo"
+    },
+    "idioma": {
+      "anyOf": [
+        {
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Idioma detectado",
+      "title": "Idioma"
+    },
+    "atualizado_em": {
+      "description": "Quando o tema foi gerado",
+      "format": "date-time",
+      "title": "Atualizado Em",
+      "type": "string"
+    },
+    "atualizado_em_conteudo": {
+      "description": "`atualizado_em` do conteúdo usado; evita reprocessar a mesma versão",
+      "format": "date-time",
+      "title": "Atualizado Em Conteudo",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "id_conteudo",
+    "topicos",
+    "atualizado_em",
+    "atualizado_em_conteudo"
+  ],
+  "title": "TemaConteudo",
+  "type": "object"
+}

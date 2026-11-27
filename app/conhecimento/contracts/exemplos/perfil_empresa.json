@@ -1,0 +1,8 @@
+{
+  "id_empresa": "emp-tintas",
+  "temas": [
+    {"topico": "pintura", "peso": 0.7, "evidencias": ["c-emp-tintas-001"]}
+  ],
+  "atualizado_em": "2026-11-27T03:00:00Z",
+  "versao": 1
+}
