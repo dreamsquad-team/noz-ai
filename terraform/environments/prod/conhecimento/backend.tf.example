@@ -1,0 +1,10 @@
+# Mesmo bucket de state da Validação (criado pelo bootstrap), com chave própria.
+terraform {
+  backend "s3" {
+    bucket       = "noz-ai-tfstate-862558960374"
+    key          = "conhecimento/terraform.tfstate"
+    region       = "us-east-1"
+    encrypt      = true
+    use_lockfile = true
+  }
+}
