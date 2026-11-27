@@ -6,3 +6,5 @@
 backend.tf
 crash.log
 *.tfplan
+# zip do código gerado pelo módulo container-build (enviado ao CodeBuild)
+**/.build/

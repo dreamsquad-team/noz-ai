@@ -14,3 +14,15 @@ variable "tags" {
   type        = map(string)
   default     = {}
 }
+
+variable "aws_profile" {
+  description = "Perfil AWS repassado ao disparo do build (local-exec). Null usa a credencial do ambiente (AWS_PROFILE)"
+  type        = string
+  default     = null
+}
+
+variable "log_level" {
+  description = "Nível de log do agente (LOG_LEVEL no runtime)"
+  type        = string
+  default     = "INFO"
+}

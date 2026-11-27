@@ -1,0 +1,31 @@
+version: 0.2
+
+# Buildspec ESTÁTICO de propósito — não use templatefile() neste arquivo.
+# A sintaxe $VAR do shell colide com a ${} do Terraform, e interpolar aqui faz
+# o arquivo deixar de ser YAML lintável e o diff virar ruído.
+#
+# O que varia chega como variável de ambiente declarada no
+# aws_codebuild_project (ver codebuild.tf):
+#   ECR_REPOSITORY_URI, IMAGE_TAG
+# AWS_DEFAULT_REGION o próprio CodeBuild injeta.
+
+phases:
+  pre_build:
+    commands:
+      - echo "Login no ECR $ECR_REPOSITORY_URI"
+      - aws ecr get-login-password --region "$AWS_DEFAULT_REGION" | docker login --username AWS --password-stdin "$ECR_REPOSITORY_URI"
+
+  build:
+    commands:
+      # O worker já é aarch64, então o build é nativo — sem emulação qemu.
+      - echo "Build de $ECR_REPOSITORY_URI:$IMAGE_TAG"
+      - docker build -t "$ECR_REPOSITORY_URI:$IMAGE_TAG" .
+      # `latest` é só conveniência para inspeção manual. O Runtime referencia a
+      # tag de hash, nunca esta — é o que garante deploy determinístico.
+      - docker tag "$ECR_REPOSITORY_URI:$IMAGE_TAG" "$ECR_REPOSITORY_URI:latest"
+
+  post_build:
+    commands:
+      - docker push "$ECR_REPOSITORY_URI:$IMAGE_TAG"
+      - docker push "$ECR_REPOSITORY_URI:latest"
+      - echo "Publicado $ECR_REPOSITORY_URI:$IMAGE_TAG"

@@ -1,0 +1,17 @@
+# O que não precisa ir para a imagem. Espelha os `source_excludes` do módulo container-build.
+.venv/
+venv/
+.git/
+.env
+.pytest_cache/
+.ruff_cache/
+**/__pycache__/
+**/*.pyc
+
+# Testes, scripts de apoio e avaliação não rodam no runtime.
+tests/
+scripts/
+avaliacao/
+
+Dockerfile
+.dockerignore
