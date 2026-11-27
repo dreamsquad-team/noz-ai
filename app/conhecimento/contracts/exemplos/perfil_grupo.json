@@ -3,7 +3,7 @@
   "tag": "pintor",
   "usuarios_considerados": 7,
   "interesses": [
-    {"topico": "pintura", "peso": 0.7, "evidencias": ["e-00014", "e-00200"]}
+    {"topico": "pintura", "usuarios": 7, "evidencias": ["e-00014", "e-00200"]}
   ],
   "janela_desde": "2026-09-01T00:00:00Z",
   "janela_ate": "2026-11-27T00:00:00Z",

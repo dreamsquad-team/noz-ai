@@ -1,5 +1,7 @@
 """Contratos do agente de Conhecimento: consultas dos outros agentes e as respostas.
 
+As respostas são uma análise factual dos dados da NOZ (contagens, tipos, datas e ids que sustentam), sem pesos nem pontuação.
+
 Mesmo padrão da Validação (Pydantic + JSON Schema gerado em `contracts/`). O agente não guarda nada: cada consulta é de
 uma pessoa, uma empresa, um conteúdo ou um grupo, lida do MCP e respondida na hora. Todo contrato leva `id_empresa`
 obrigatório: o isolamento por empresa começa aqui.
@@ -8,7 +10,7 @@ obrigatório: o isolamento por empresa começa aqui.
 from datetime import datetime
 from typing import Annotated, Literal
 
-from pydantic import BaseModel, Field, field_validator, model_validator
+from pydantic import BaseModel, Field, model_validator
 
 Modo = Literal["real", "mock"]
 
@@ -59,23 +61,40 @@ Consulta = Annotated[
 
 # --- respostas ---
 
-class Interesse(BaseModel):
-    topico: str = Field(min_length=1, description="Tópico de interesse, ex.: pintura")
-    peso: float = Field(ge=0, le=1, description="Força do interesse, de 0 a 1, com até duas casas decimais")
+class InteresseUsuario(BaseModel):
+    """Um assunto em que o usuário esteve envolvido na janela. Só fatos dos eventos, sem pontuação."""
+
+    topico: str = Field(min_length=1, description="Assunto (tópico do tema dos conteúdos acessados), ex.: pintura")
+    eventos: int = Field(ge=1, description="Quantos eventos do usuário, na janela, foram sobre conteúdos com este tópico")
+    por_tipo: dict[str, int] = Field(description="Esses eventos por tipo: clique, acesso, comentario")
+    ultimo_evento_em: datetime = Field(description="Quando foi o evento mais recente sobre este tópico")
     evidencias: list[str] = Field(
-        min_length=1, description="Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse"
+        min_length=1, description="Ids dos eventos mais recentes sobre o tópico (até 5). Sem evidência, sem interesse"
     )
 
-    @field_validator("peso")
-    @classmethod
-    def arredonda_peso(cls, valor):
-        return round(valor, 2)
+
+class TemaEmpresa(BaseModel):
+    """Um assunto sobre o qual a empresa publica."""
+
+    topico: str = Field(min_length=1, description="Assunto, ex.: pintura")
+    conteudos: int = Field(ge=1, description="Quantos conteúdos considerados da empresa têm este tópico")
+    evidencias: list[str] = Field(min_length=1, description="Ids de conteúdos com o tópico (até 5)")
+
+
+class InteresseGrupo(BaseModel):
+    """Um assunto presente nos usuários do grupo."""
+
+    topico: str = Field(min_length=1, description="Assunto, ex.: pintura")
+    usuarios: int = Field(ge=1, description="Quantos usuários do grupo (dos considerados) têm este tópico")
+    evidencias: list[str] = Field(min_length=1, description="Ids de eventos mais recentes sobre o tópico no grupo (até 5)")
 
 
 class PerfilUsuario(BaseModel):
     id_empresa: str = Field(min_length=1, description="Empresa do usuário")
     id_usuario: str = Field(min_length=1, description="Usuário")
-    interesses: list[Interesse] = Field(default_factory=list, description="Interesses inferidos, do mais forte ao mais fraco")
+    interesses: list[InteresseUsuario] = Field(
+        default_factory=list, description="Assuntos dos conteúdos acessados, do que tem mais eventos ao que tem menos"
+    )
     canal_preferido: str | None = Field(default=None, description="Canal mais usado na janela")
     dispositivo_preferido: str | None = Field(default=None, description="Dispositivo mais usado na janela")
     janela_desde: datetime = Field(description="Início da janela de eventos considerada")
@@ -86,7 +105,9 @@ class PerfilUsuario(BaseModel):
 
 class PerfilEmpresa(BaseModel):
     id_empresa: str = Field(min_length=1, description="Empresa")
-    temas: list[Interesse] = Field(default_factory=list, description="Temas sobre os quais a empresa publica")
+    temas: list[TemaEmpresa] = Field(
+        default_factory=list, description="Temas sobre os quais a empresa publica, do mais ao menos frequente"
+    )
     conteudos_considerados: int = Field(ge=0, description="Quantos conteúdos entraram no cálculo")
     avisos: list[str] = Field(default_factory=list, description="O que limitou ou degradou a resposta")
 
@@ -105,9 +126,8 @@ class PerfilGrupo(BaseModel):
     id_empresa: str = Field(min_length=1, description="Empresa do grupo")
     tag: str = Field(min_length=1, description="Tag que define o grupo")
     usuarios_considerados: int = Field(ge=0, description="Usuários do grupo que entraram no cálculo")
-    interesses: list[Interesse] = Field(
-        default_factory=list,
-        description="Interesse médio do grupo: média do peso entre os usuários considerados (quem não tem o tópico conta 0)",
+    interesses: list[InteresseGrupo] = Field(
+        default_factory=list, description="Assuntos presentes nos usuários do grupo, do que mais usuários têm ao que menos"
     )
     janela_desde: datetime = Field(description="Início da janela de eventos considerada")
     janela_ate: datetime = Field(description="Fim da janela de eventos considerada")

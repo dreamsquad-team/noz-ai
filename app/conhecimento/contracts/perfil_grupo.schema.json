@@ -1,22 +1,22 @@
 {
   "$defs": {
-    "Interesse": {
+    "InteresseGrupo": {
+      "description": "Um assunto presente nos usuários do grupo.",
       "properties": {
         "topico": {
-          "description": "Tópico de interesse, ex.: pintura",
+          "description": "Assunto, ex.: pintura",
           "minLength": 1,
           "title": "Topico",
           "type": "string"
         },
-        "peso": {
-          "description": "Força do interesse, de 0 a 1, com até duas casas decimais",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "Peso",
-          "type": "number"
+        "usuarios": {
+          "description": "Quantos usuários do grupo (dos considerados) têm este tópico",
+          "minimum": 1,
+          "title": "Usuarios",
+          "type": "integer"
         },
         "evidencias": {
-          "description": "Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse",
+          "description": "Ids de eventos mais recentes sobre o tópico no grupo (até 5)",
           "items": {
             "type": "string"
           },
@@ -27,10 +27,10 @@
       },
       "required": [
         "topico",
-        "peso",
+        "usuarios",
         "evidencias"
       ],
-      "title": "Interesse",
+      "title": "InteresseGrupo",
       "type": "object"
     }
   },
@@ -54,9 +54,9 @@
       "type": "integer"
     },
     "interesses": {
-      "description": "Interesse médio do grupo: média do peso entre os usuários considerados (quem não tem o tópico conta 0)",
+      "description": "Assuntos presentes nos usuários do grupo, do que mais usuários têm ao que menos",
       "items": {
-        "$ref": "#/$defs/Interesse"
+        "$ref": "#/$defs/InteresseGrupo"
       },
       "title": "Interesses",
       "type": "array"

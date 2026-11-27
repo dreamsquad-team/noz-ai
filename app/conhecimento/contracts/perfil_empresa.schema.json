@@ -1,22 +1,22 @@
 {
   "$defs": {
-    "Interesse": {
+    "TemaEmpresa": {
+      "description": "Um assunto sobre o qual a empresa publica.",
       "properties": {
         "topico": {
-          "description": "Tópico de interesse, ex.: pintura",
+          "description": "Assunto, ex.: pintura",
           "minLength": 1,
           "title": "Topico",
           "type": "string"
         },
-        "peso": {
-          "description": "Força do interesse, de 0 a 1, com até duas casas decimais",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "Peso",
-          "type": "number"
+        "conteudos": {
+          "description": "Quantos conteúdos considerados da empresa têm este tópico",
+          "minimum": 1,
+          "title": "Conteudos",
+          "type": "integer"
         },
         "evidencias": {
-          "description": "Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse",
+          "description": "Ids de conteúdos com o tópico (até 5)",
           "items": {
             "type": "string"
           },
@@ -27,10 +27,10 @@
       },
       "required": [
         "topico",
-        "peso",
+        "conteudos",
         "evidencias"
       ],
-      "title": "Interesse",
+      "title": "TemaEmpresa",
       "type": "object"
     }
   },
@@ -42,9 +42,9 @@
       "type": "string"
     },
     "temas": {
-      "description": "Temas sobre os quais a empresa publica",
+      "description": "Temas sobre os quais a empresa publica, do mais ao menos frequente",
       "items": {
-        "$ref": "#/$defs/Interesse"
+        "$ref": "#/$defs/TemaEmpresa"
       },
       "title": "Temas",
       "type": "array"

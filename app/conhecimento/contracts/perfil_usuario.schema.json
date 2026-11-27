@@ -1,22 +1,36 @@
 {
   "$defs": {
-    "Interesse": {
+    "InteresseUsuario": {
+      "description": "Um assunto em que o usuário esteve envolvido na janela. Só fatos dos eventos, sem pontuação.",
       "properties": {
         "topico": {
-          "description": "Tópico de interesse, ex.: pintura",
+          "description": "Assunto (tópico do tema dos conteúdos acessados), ex.: pintura",
           "minLength": 1,
           "title": "Topico",
           "type": "string"
         },
-        "peso": {
-          "description": "Força do interesse, de 0 a 1, com até duas casas decimais",
-          "maximum": 1,
-          "minimum": 0,
-          "title": "Peso",
-          "type": "number"
+        "eventos": {
+          "description": "Quantos eventos do usuário, na janela, foram sobre conteúdos com este tópico",
+          "minimum": 1,
+          "title": "Eventos",
+          "type": "integer"
+        },
+        "por_tipo": {
+          "additionalProperties": {
+            "type": "integer"
+          },
+          "description": "Esses eventos por tipo: clique, acesso, comentario",
+          "title": "Por Tipo",
+          "type": "object"
+        },
+        "ultimo_evento_em": {
+          "description": "Quando foi o evento mais recente sobre este tópico",
+          "format": "date-time",
+          "title": "Ultimo Evento Em",
+          "type": "string"
         },
         "evidencias": {
-          "description": "Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse",
+          "description": "Ids dos eventos mais recentes sobre o tópico (até 5). Sem evidência, sem interesse",
           "items": {
             "type": "string"
           },
@@ -27,10 +41,12 @@
       },
       "required": [
         "topico",
-        "peso",
+        "eventos",
+        "por_tipo",
+        "ultimo_evento_em",
         "evidencias"
       ],
-      "title": "Interesse",
+      "title": "InteresseUsuario",
       "type": "object"
     }
   },
@@ -48,9 +64,9 @@
       "type": "string"
     },
     "interesses": {
-      "description": "Interesses inferidos, do mais forte ao mais fraco",
+      "description": "Assuntos dos conteúdos acessados, do que tem mais eventos ao que tem menos",
       "items": {
-        "$ref": "#/$defs/Interesse"
+        "$ref": "#/$defs/InteresseUsuario"
       },
       "title": "Interesses",
       "type": "array"

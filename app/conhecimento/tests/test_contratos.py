@@ -115,21 +115,31 @@ def test_modo_invalido_e_rejeitado_e_padrao_e_real():
     assert c.ConsultaPerfilEmpresa(id_empresa="e").modo == "real"
 
 
-# --- interesses: sem evidência, sem interesse ---
+# --- assuntos: só fatos, sem evidência não existe ---
+
+AGORA = "2026-11-27T00:00:00Z"
+
 
 def test_interesse_sem_evidencia_e_rejeitado():
     with pytest.raises(ValidationError):
-        c.Interesse(topico="pintura", peso=0.5, evidencias=[])
-
-
-@pytest.mark.parametrize("peso", [-0.1, 1.1])
-def test_peso_fora_do_intervalo_e_rejeitado(peso):
+        c.InteresseUsuario(topico="pintura", eventos=1, por_tipo={"clique": 1}, ultimo_evento_em=AGORA, evidencias=[])
     with pytest.raises(ValidationError):
-        c.Interesse(topico="pintura", peso=peso, evidencias=["e1"])
+        c.TemaEmpresa(topico="pintura", conteudos=1, evidencias=[])
+    with pytest.raises(ValidationError):
+        c.InteresseGrupo(topico="pintura", usuarios=1, evidencias=[])
 
 
-def test_peso_e_arredondado_em_duas_casas():
-    assert c.Interesse(topico="pintura", peso=0.8249, evidencias=["e1"]).peso == 0.82
+def test_contagem_precisa_ser_positiva():
+    with pytest.raises(ValidationError):
+        c.InteresseUsuario(topico="pintura", eventos=0, por_tipo={}, ultimo_evento_em=AGORA, evidencias=["e1"])
+    with pytest.raises(ValidationError):
+        c.TemaEmpresa(topico="pintura", conteudos=0, evidencias=["c1"])
+
+
+def test_resposta_nao_tem_peso_nem_pontuacao():
+    """A análise é factual: nenhum modelo de resposta carrega peso, score ou força."""
+    for modelo in (c.InteresseUsuario, c.TemaEmpresa, c.InteresseGrupo, c.PerfilUsuario, c.PerfilEmpresa, c.PerfilGrupo):
+        assert not {"peso", "score", "forca", "pontos"} & set(modelo.model_fields)
 
 
 def test_respostas_nao_guardam_estado():

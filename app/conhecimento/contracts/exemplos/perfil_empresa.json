@@ -1,7 +1,7 @@
 {
   "id_empresa": "emp-tintas",
   "temas": [
-    {"topico": "pintura", "peso": 0.75, "evidencias": ["c-emp-tintas-001", "c-emp-tintas-004"]}
+    {"topico": "pintura", "conteudos": 14, "evidencias": ["c-emp-tintas-001", "c-emp-tintas-004"]}
   ],
   "conteudos_considerados": 40,
   "avisos": []

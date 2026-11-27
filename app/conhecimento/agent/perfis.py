@@ -1,43 +1,35 @@
 """Construção dos perfis (T07). Código puro e determinístico: sem modelo, sem rede, sem relógio, sem estado.
 
-O agente não guarda nada: cada perfil é calculado na hora, a partir dos eventos da janela e dos temas dos conteúdos
-acessados. Mesmos dados, mesmo perfil.
+O agente não guarda nada e não pontua nada: cada perfil é uma análise estruturada, calculada na hora, dos dados da NOZ.
+Mesmos dados, mesmo perfil.
 
-Como o interesse é calculado:
-- cada evento sobre um conteúdo que tem tema soma pontos a cada tópico do tema: `PESO_EVENTO[tipo]` (comentar vale
-  mais que clicar), reduzidos pela idade do evento (meia-vida de `MEIA_VIDA_DIAS` dias, contada até o fim da janela);
-- o peso do interesse (0 a 1) é `1 - exp(-pontos / K_SATURACAO)`: um evento isolado dá pouco peso, vários dão
-  mais, e nunca passa de 1;
-- evidência: ids dos eventos mais recentes que sustentam o tópico. Sem evidência, sem interesse;
-- perfil da empresa: tópicos dos temas dos conteúdos que ela publica, pesados pela quantidade de conteúdos;
-- perfil do grupo: peso médio do tópico entre os usuários do grupo (quem não tem o tópico conta 0).
+O que cada perfil diz (só fatos, nenhum peso):
+- usuário: por assunto, quantos eventos (e de que tipo) o usuário teve sobre conteúdos com aquele assunto na janela,
+  quando foi o último e quais eventos sustentam (até `MAX_EVIDENCIAS`, os mais recentes). Canal e dispositivo mais usados;
+- empresa: por assunto, em quantos conteúdos ele aparece e quais (até `MAX_EVIDENCIAS`);
+- grupo: por assunto, quantos usuários do grupo o têm e eventos que o sustentam.
 
-⚠️ Os números abaixo (pesos, meia-vida, saturação) são pontos de partida, para calibrar na avaliação (T13).
+O assunto de cada conteúdo vem do tema (`tools/tema.py`). Evento sem conteúdo, de conteúdo desconhecido ou sem tema não
+gera assunto (mas conta para canal, dispositivo e `eventos_considerados`). Sem evidência, sem assunto.
+A ordem é sempre: mais eventos (ou conteúdos, ou usuários) primeiro; empate pelo mais recente e depois pelo nome.
 """
 
-import math
 from collections import Counter, defaultdict
 from datetime import datetime
 
-from agent.contract import Interesse, PerfilEmpresa, PerfilGrupo, PerfilUsuario, TemaConteudo
+from agent.contract import (
+    InteresseGrupo,
+    InteresseUsuario,
+    PerfilEmpresa,
+    PerfilGrupo,
+    PerfilUsuario,
+    TemaConteudo,
+    TemaEmpresa,
+)
 from agent.dominio import Evento
 
-PESO_EVENTO = {"acesso": 1.0, "clique": 1.0, "comentario": 2.0}
-MEIA_VIDA_DIAS = 30.0
-K_SATURACAO = 10.0  # ~10 pontos (≈10 eventos recentes) dão peso 0,63; com 3, tudo saturava em 1,0 no mock
-MAX_INTERESSES = 10
-MIN_PESO = 0.05
+MAX_TOPICOS = 20  # assuntos listados por perfil; passou disso, os mais frequentes ficam e um aviso é acrescentado
 MAX_EVIDENCIAS = 5
-
-
-def peso_de_pontos(pontos: float) -> float:
-    return round(1 - math.exp(-pontos / K_SATURACAO), 2)
-
-
-def decaimento(de: datetime, para: datetime) -> float:
-    """Fator entre 0 e 1 pela idade; datas fora de ordem não aumentam o valor."""
-    dias = max(0.0, (para - de).total_seconds() / 86400)
-    return 0.5 ** (dias / MEIA_VIDA_DIAS)
 
 
 def _mais_comum(valores: list[str | None]) -> str | None:
@@ -46,6 +38,12 @@ def _mais_comum(valores: list[str | None]) -> str | None:
         return None
     # desempate alfabético: o resultado não depende da ordem de chegada
     return sorted(contagem.items(), key=lambda kv: (-kv[1], kv[0]))[0][0]
+
+
+def _limitar(itens: list, avisos: list[str], o_que: str) -> list:
+    if len(itens) > MAX_TOPICOS:
+        avisos.append(f"listados só os {MAX_TOPICOS} assuntos mais frequentes, de {len(itens)} {o_que}")
+    return itens[:MAX_TOPICOS]
 
 
 def construir_perfil_usuario(
@@ -57,11 +55,7 @@ def construir_perfil_usuario(
     ate: datetime,
     avisos: list[str] | None = None,
 ) -> PerfilUsuario:
-    """Perfil do usuário a partir dos `eventos` da janela (desde, ate].
-
-    `temas` mapeia id_conteudo -> tema. Evento sem conteúdo, de conteúdo desconhecido ou sem tema não gera
-    interesse (mas conta para canal e dispositivo).
-    """
+    """Perfil do usuário a partir dos `eventos` da janela (desde, ate]. `temas` mapeia id_conteudo -> tema."""
     for e in eventos:
         if e.id_empresa != id_empresa or e.id_usuario != id_usuario:
             raise ValueError("evento de outra empresa ou outro usuário no perfil de %s/%s" % (id_empresa, id_usuario))
@@ -69,60 +63,60 @@ def construir_perfil_usuario(
         if t.id_empresa != id_empresa:
             raise ValueError("tema de outra empresa no perfil de %s/%s" % (id_empresa, id_usuario))
 
-    pontos: dict[str, float] = defaultdict(float)
-    evidencias: dict[str, list[tuple[datetime, str]]] = defaultdict(list)
+    por_topico: dict[str, list[Evento]] = defaultdict(list)
     for e in eventos:
         tema = temas.get(e.id_conteudo) if e.id_conteudo else None
-        if tema is None:
-            continue
-        ponto = PESO_EVENTO[e.tipo] * decaimento(e.ocorrido_em, ate)
-        for topico in tema.topicos:
-            pontos[topico] += ponto
-            evidencias[topico].append((e.ocorrido_em, e.id_evento))
+        for topico in dict.fromkeys(tema.topicos if tema else []):
+            por_topico[topico].append(e)
 
     interesses = []
-    for topico, p in pontos.items():
-        peso = peso_de_pontos(p)
-        if peso < MIN_PESO:
-            continue
-        recentes = [ident for _, ident in sorted(evidencias[topico], key=lambda x: x[0], reverse=True)]
-        interesses.append((peso, topico, list(dict.fromkeys(recentes))[:MAX_EVIDENCIAS]))
-    interesses.sort(key=lambda x: (-x[0], x[1]))
+    for topico, evs in por_topico.items():
+        recentes = sorted(evs, key=lambda e: (e.ocorrido_em, e.id_evento), reverse=True)
+        interesses.append(
+            InteresseUsuario(
+                topico=topico,
+                eventos=len(evs),
+                por_tipo=dict(sorted(Counter(e.tipo for e in evs).items())),
+                ultimo_evento_em=recentes[0].ocorrido_em,
+                evidencias=[e.id_evento for e in recentes[:MAX_EVIDENCIAS]],
+            )
+        )
+    interesses.sort(key=lambda i: (-i.eventos, -i.ultimo_evento_em.timestamp(), i.topico))
 
+    avisos = list(avisos or [])
     return PerfilUsuario(
         id_empresa=id_empresa,
         id_usuario=id_usuario,
-        interesses=[Interesse(topico=t, peso=p, evidencias=ev) for p, t, ev in interesses[:MAX_INTERESSES]],
+        interesses=_limitar(interesses, avisos, "encontrados"),
         canal_preferido=_mais_comum([e.canal for e in eventos]),
         dispositivo_preferido=_mais_comum([e.dispositivo for e in eventos]),
         janela_desde=desde,
         janela_ate=ate,
         eventos_considerados=len(eventos),
-        avisos=list(avisos or []),
+        avisos=avisos,
     )
 
 
 def construir_perfil_empresa(id_empresa: str, temas: list[TemaConteudo], avisos: list[str] | None = None) -> PerfilEmpresa:
-    """Temas sobre os quais a empresa publica, a partir dos temas dos seus conteúdos."""
+    """Assuntos sobre os quais a empresa publica, a partir dos temas dos seus conteúdos."""
     por_topico: dict[str, list[str]] = defaultdict(list)
     for t in sorted(temas, key=lambda t: t.id_conteudo):
         if t.id_empresa != id_empresa:
             raise ValueError("tema de outra empresa no perfil da empresa %s" % id_empresa)
-        for topico in t.topicos:
+        for topico in dict.fromkeys(t.topicos):
             por_topico[topico].append(t.id_conteudo)
 
-    ordenados = sorted(
-        ((peso_de_pontos(len(ids)), topico, ids) for topico, ids in por_topico.items()), key=lambda x: (-x[0], x[1])
-    )
+    assuntos = [
+        TemaEmpresa(topico=topico, conteudos=len(ids), evidencias=ids[:MAX_EVIDENCIAS]) for topico, ids in por_topico.items()
+    ]
+    assuntos.sort(key=lambda a: (-a.conteudos, a.topico))
+
+    avisos = list(avisos or [])
     return PerfilEmpresa(
         id_empresa=id_empresa,
-        temas=[
-            Interesse(topico=t, peso=p, evidencias=ids[:MAX_EVIDENCIAS])
-            for p, t, ids in ordenados[:MAX_INTERESSES]
-            if p >= MIN_PESO
-        ],
+        temas=_limitar(assuntos, avisos, "encontrados"),
         conteudos_considerados=len(temas),
-        avisos=list(avisos or []),
+        avisos=avisos,
     )
 
 
@@ -134,35 +128,36 @@ def construir_perfil_grupo(
     ate: datetime,
     avisos: list[str] | None = None,
 ) -> PerfilGrupo:
-    """Interesse médio do grupo: média do peso de cada tópico entre os usuários considerados."""
+    """Assuntos presentes nos usuários do grupo: por assunto, quantos usuários o têm."""
     for p in perfis:
         if p.id_empresa != id_empresa:
             raise ValueError("perfil de outra empresa no grupo %s/%s" % (id_empresa, tag))
 
-    soma: dict[str, float] = defaultdict(float)
-    evidencias: dict[str, list[tuple[float, str]]] = defaultdict(list)
+    usuarios: dict[str, int] = defaultdict(int)
+    eventos: dict[str, list[tuple[datetime, str]]] = defaultdict(list)
     for p in perfis:
         for i in p.interesses:
-            soma[i.topico] += i.peso
-            evidencias[i.topico] += [(i.peso, ev) for ev in i.evidencias]
+            usuarios[i.topico] += 1
+            eventos[i.topico].append((i.ultimo_evento_em, i.evidencias[0]))  # o evento mais recente de cada usuário
 
-    n = len(perfis)
-    ordenados = []
-    for topico, total in soma.items():
-        peso = round(total / n, 2)
-        if peso < MIN_PESO:
-            continue
-        # evidências dos usuários em que o interesse é mais forte; desempate pelo id (resultado estável)
-        melhores = [ev for _, ev in sorted(evidencias[topico], key=lambda x: (-x[0], x[1]))]
-        ordenados.append((peso, topico, list(dict.fromkeys(melhores))[:MAX_EVIDENCIAS]))
-    ordenados.sort(key=lambda x: (-x[0], x[1]))
+    assuntos = []
+    for topico, n in usuarios.items():
+        recentes = sorted(eventos[topico], key=lambda x: (x[0], x[1]), reverse=True)
+        assuntos.append(
+            InteresseGrupo(
+                topico=topico, usuarios=n, evidencias=list(dict.fromkeys(ev for _, ev in recentes))[:MAX_EVIDENCIAS]
+            )
+        )
+    ultimo = {t: max(d for d, _ in v) for t, v in eventos.items()}
+    assuntos.sort(key=lambda a: (-a.usuarios, -ultimo[a.topico].timestamp(), a.topico))
 
+    avisos = list(avisos or [])
     return PerfilGrupo(
         id_empresa=id_empresa,
         tag=tag,
-        usuarios_considerados=n,
-        interesses=[Interesse(topico=t, peso=p, evidencias=ev) for p, t, ev in ordenados[:MAX_INTERESSES]],
+        usuarios_considerados=len(perfis),
+        interesses=_limitar(assuntos, avisos, "encontrados"),
         janela_desde=desde,
         janela_ate=ate,
-        avisos=list(avisos or []),
+        avisos=avisos,
     )
