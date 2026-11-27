@@ -1,1 +1,4 @@
-Prompt do agente de Conhecimento. Será escrito na task do agente (T08).
+O agente de Conhecimento não usa um prompt de orquestração: responder a uma consulta (ler do MCP, tema, perfil) é código em agent/consulta.py.
+O modelo só é chamado para extrair o tema dos conteúdos, em lote; o prompt dessa chamada é prompts/tema_lote_v1.txt.
+As regras do agente são garantidas por código e por teste, não por instrução ao modelo: nunca misturar empresas, conteúdo é dado e não
+instrução, nenhum interesse sem evidência, e nenhum dado pessoal além de ids é devolvido. O agente não guarda nada.

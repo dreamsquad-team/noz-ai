@@ -21,9 +21,11 @@ def listar_empresas(cursor: str | None = None, limite: int | None = None) -> dic
 
 
 @mcp.tool()
-def listar_usuarios(id_empresa: str, cursor: str | None = None, limite: int | None = None) -> dict:
-    """Lista os usuários de UMA empresa (id_empresa é obrigatório)."""
-    return servico.listar_usuarios(id_empresa, cursor, limite)
+def listar_usuarios(
+    id_empresa: str, cursor: str | None = None, limite: int | None = None, tag: str | None = None
+) -> dict:
+    """Lista os usuários de UMA empresa (id_empresa é obrigatório). `tag` filtra pelo grupo."""
+    return servico.listar_usuarios(id_empresa, cursor, limite, tag)
 
 
 @mcp.tool()
@@ -32,9 +34,10 @@ def listar_conteudos(
     atualizado_desde: str | None = None,
     cursor: str | None = None,
     limite: int | None = None,
+    ids: list[str] | None = None,
 ) -> dict:
-    """Lista conteúdos de UMA empresa. `atualizado_desde` (ISO 8601) faz leitura incremental."""
-    return servico.listar_conteudos(id_empresa, atualizado_desde, cursor, limite)
+    """Lista conteúdos de UMA empresa. `ids` pede só esses; `atualizado_desde` (ISO 8601) lê só o que mudou."""
+    return servico.listar_conteudos(id_empresa, atualizado_desde, cursor, limite, ids)
 
 
 @mcp.tool()
@@ -44,9 +47,10 @@ def listar_eventos(
     ate: str | None = None,
     cursor: str | None = None,
     limite: int | None = None,
+    id_usuario: str | None = None,
 ) -> dict:
-    """Lista eventos de UMA empresa no período (desde, ate], em ordem cronológica."""
-    return servico.listar_eventos(id_empresa, desde, ate, cursor, limite)
+    """Lista eventos de UMA empresa no período (desde, ate], em ordem cronológica. `id_usuario` filtra por usuário."""
+    return servico.listar_eventos(id_empresa, desde, ate, cursor, limite, id_usuario)
 
 
 def main(argv=None):

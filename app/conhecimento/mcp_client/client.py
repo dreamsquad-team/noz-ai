@@ -42,6 +42,9 @@ SERVICE = "bedrock-agentcore"
 # O resto segue os padrões do MCP: 30s por operação e 300s de leitura SSE.
 TIMEOUT = httpx.Timeout(30.0, read=300.0, connect=3.0)
 
+# Hosts onde é aceito rodar sem assinatura (MCP_SIGV4=false).
+_HOSTS_LOCAIS = {"127.0.0.1", "localhost", "::1"}
+
 # <id>.gateway.bedrock-agentcore.<região>.amazonaws.com
 _GATEWAY_HOST_REGION = re.compile(r"\.gateway\.bedrock-agentcore\.([a-z0-9-]+)\.")
 
@@ -59,7 +62,7 @@ def _signing_region(url: str) -> str:
 
 
 @contextlib.asynccontextmanager
-async def _transport(url: str, auth: httpx.Auth):
+async def _transport(url: str, auth: Optional[httpx.Auth]):
     async with httpx.AsyncClient(auth=auth, timeout=TIMEOUT, follow_redirects=True) as http:
         async with streamable_http_client(url, http_client=http) as streams:
             yield streams
@@ -96,11 +99,23 @@ def get_gateway_mcp_client() -> Optional[MCPClient]:
         )
         return None
 
-    auth = AuthSigV4(SERVICE, _signing_region(url))
-    if auth.credentials is None:
-        logger.warning(
-            "nenhuma credencial AWS resolvida; o agente roda sem as tools do gateway"
-        )
-        return None
+    if settings.mcp_sigv4:
+        auth = AuthSigV4(SERVICE, _signing_region(url))
+        if auth.credentials is None:
+            logger.warning(
+                "nenhuma credencial AWS resolvida; o agente roda sem as tools do gateway"
+            )
+            return None
+    else:
+        # Modo local (mock MCP em http://127.0.0.1:8765/mcp): sem assinatura.
+        # Só para localhost, para que um MCP_SIGV4=false esquecido nunca mande
+        # requisições sem assinar a um Gateway de verdade.
+        if urlparse(url).hostname not in _HOSTS_LOCAIS:
+            logger.warning(
+                "MCP_SIGV4=false só é aceito para host local; recusando %r", url
+            )
+            return None
+        logger.warning("MCP_SIGV4=false: requisições SEM assinatura (MCP local)")
+        auth = None
 
     return MCPClient(lambda: _transport(url, auth), continue_on_error=True)

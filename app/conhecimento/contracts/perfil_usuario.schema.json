@@ -65,7 +65,7 @@
         }
       ],
       "default": null,
-      "description": "Canal mais usado",
+      "description": "Canal mais usado na janela",
       "title": "Canal Preferido"
     },
     "dispositivo_preferido": {
@@ -78,27 +78,42 @@
         }
       ],
       "default": null,
-      "description": "Dispositivo mais usado",
+      "description": "Dispositivo mais usado na janela",
       "title": "Dispositivo Preferido"
     },
-    "atualizado_em": {
-      "description": "Quando o perfil foi atualizado",
+    "janela_desde": {
+      "description": "Início da janela de eventos considerada",
       "format": "date-time",
-      "title": "Atualizado Em",
+      "title": "Janela Desde",
       "type": "string"
     },
-    "versao": {
-      "description": "Versão do perfil, incrementada a cada atualização",
-      "minimum": 1,
-      "title": "Versao",
+    "janela_ate": {
+      "description": "Fim da janela de eventos considerada",
+      "format": "date-time",
+      "title": "Janela Ate",
+      "type": "string"
+    },
+    "eventos_considerados": {
+      "description": "Quantos eventos entraram no cálculo",
+      "minimum": 0,
+      "title": "Eventos Considerados",
       "type": "integer"
+    },
+    "avisos": {
+      "description": "O que limitou ou degradou a resposta (cortes, conteúdos sem tema)",
+      "items": {
+        "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
     }
   },
   "required": [
     "id_empresa",
     "id_usuario",
-    "atualizado_em",
-    "versao"
+    "janela_desde",
+    "janela_ate",
+    "eventos_considerados"
   ],
   "title": "PerfilUsuario",
   "type": "object"

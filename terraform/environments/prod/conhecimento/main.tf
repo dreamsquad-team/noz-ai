@@ -7,6 +7,6 @@ provider "aws" {
   }
 }
 
-module "perfis" {
-  source = "../../../modules/perfis-dynamodb"
-}
+# O agente de Conhecimento não guarda nada (decisão de 27/11), então não há tabela aqui.
+# Os recursos da infra (container, runtime, Gateway) entram na T09, ver
+# docs/specs/conhecimento/tasks/T09-terraform-infra.md.

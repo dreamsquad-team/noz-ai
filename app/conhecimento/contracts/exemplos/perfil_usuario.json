@@ -2,10 +2,12 @@
   "id_empresa": "emp-tintas",
   "id_usuario": "u-emp-tintas-01",
   "interesses": [
-    {"topico": "pintura", "peso": 0.82, "evidencias": ["e-0012", "c-emp-tintas-003"]}
+    {"topico": "pintura", "peso": 0.82, "evidencias": ["e-00014", "e-00029"]}
   ],
   "canal_preferido": "app",
   "dispositivo_preferido": "android",
-  "atualizado_em": "2026-11-27T03:00:00Z",
-  "versao": 3
+  "janela_desde": "2026-09-01T00:00:00Z",
+  "janela_ate": "2026-11-27T00:00:00Z",
+  "eventos_considerados": 38,
+  "avisos": []
 }

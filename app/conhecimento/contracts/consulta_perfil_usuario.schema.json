@@ -1,9 +1,53 @@
 {
   "properties": {
     "id_empresa": {
-      "description": "Empresa. Obrigatória",
+      "description": "Empresa. Obrigatória: nenhuma consulta cruza empresas",
       "minLength": 1,
       "title": "Id Empresa",
+      "type": "string"
+    },
+    "modo": {
+      "default": "real",
+      "description": "Fonte dos dados: MCP real ou MCP mockado (dados fictícios)",
+      "enum": [
+        "real",
+        "mock"
+      ],
+      "title": "Modo",
+      "type": "string"
+    },
+    "desde": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Início da janela de eventos. Vazio = janela padrão",
+      "title": "Desde"
+    },
+    "ate": {
+      "anyOf": [
+        {
+          "format": "date-time",
+          "type": "string"
+        },
+        {
+          "type": "null"
+        }
+      ],
+      "default": null,
+      "description": "Fim da janela de eventos. Vazio = agora",
+      "title": "Ate"
+    },
+    "tipo": {
+      "const": "perfil_usuario",
+      "default": "perfil_usuario",
+      "title": "Tipo",
       "type": "string"
     },
     "id_usuario": {

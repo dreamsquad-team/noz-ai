@@ -3,7 +3,9 @@
 Contrato provisório (o que o agente espera do MCP da NOZ):
 - toda consulta exige `id_empresa`; nunca devolve dado de outra empresa;
 - listas paginadas por cursor opaco: {"itens": [...], "proximo_cursor": str | None};
-- leitura incremental: `atualizado_desde` (conteúdos) e `desde`/`ate` (eventos).
+- leitura incremental: `atualizado_desde` (conteúdos) e `desde`/`ate` (eventos);
+- consulta dirigida (para responder sobre uma pessoa sem ler a empresa inteira): eventos por `id_usuario`, conteúdos
+  por lista de `ids` e usuários por `tag`. Em todos, a empresa continua obrigatória.
 """
 
 from datetime import datetime, timezone
@@ -24,6 +26,33 @@ def _empresa(id_empresa):
     if not any(e["id_empresa"] == id_empresa for e in dados.EMPRESAS):
         raise ErroMcp(f"empresa não encontrada: {id_empresa}")
     return id_empresa
+
+
+def _usuario(id_empresa, id_usuario):
+    if not isinstance(id_usuario, str) or not id_usuario.strip():
+        raise ErroMcp("id_usuario não pode ser vazio")
+    if not any(u["id_usuario"] == id_usuario and u["id_empresa"] == id_empresa for u in dados.USUARIOS):
+        # a mesma mensagem vale para "não existe" e "é de outra empresa": não revela que o id existe em outra
+        raise ErroMcp(f"usuário não encontrado: {id_usuario}")
+    return id_usuario
+
+
+def _ids(ids):
+    if ids is None:
+        return None
+    if not isinstance(ids, list) or not all(isinstance(i, str) and i.strip() for i in ids):
+        raise ErroMcp("ids deve ser uma lista de textos não vazios")
+    if len(ids) > LIMITE_MAXIMO:
+        raise ErroMcp(f"ids: no máximo {LIMITE_MAXIMO} por chamada")
+    return set(ids)
+
+
+def _tag(tag):
+    if tag is None:
+        return None
+    if not isinstance(tag, str) or not tag.strip():
+        raise ErroMcp("tag não pode ser vazia")
+    return tag
 
 
 def _data(valor, nome):
@@ -68,30 +97,38 @@ def listar_empresas(cursor=None, limite=None):
     return _paginar(list(dados.EMPRESAS), cursor, limite)
 
 
-def listar_usuarios(id_empresa, cursor=None, limite=None):
+def listar_usuarios(id_empresa, cursor=None, limite=None, tag=None):
     emp = _empresa(id_empresa)
-    return _paginar([u for u in dados.USUARIOS if u["id_empresa"] == emp], cursor, limite)
+    filtro = _tag(tag)
+    itens = [u for u in dados.USUARIOS if u["id_empresa"] == emp and (filtro is None or filtro in u["tags"])]
+    return _paginar(itens, cursor, limite)
 
 
-def listar_conteudos(id_empresa, atualizado_desde=None, cursor=None, limite=None):
+def listar_conteudos(id_empresa, atualizado_desde=None, cursor=None, limite=None, ids=None):
+    """`ids`: só esses conteúdos (os que não existem, ou são de outra empresa, simplesmente não vêm)."""
     emp = _empresa(id_empresa)
     desde = _data(atualizado_desde, "atualizado_desde")
+    pedidos = _ids(ids)
     itens = [
         c
         for c in dados.CONTEUDOS
-        if c["id_empresa"] == emp and (desde is None or _data(c["atualizado_em"], "atualizado_em") > desde)
+        if c["id_empresa"] == emp
+        and (pedidos is None or c["id_conteudo"] in pedidos)
+        and (desde is None or _data(c["atualizado_em"], "atualizado_em") > desde)
     ]
     return _paginar(itens, cursor, limite)
 
 
-def listar_eventos(id_empresa, desde=None, ate=None, cursor=None, limite=None):
+def listar_eventos(id_empresa, desde=None, ate=None, cursor=None, limite=None, id_usuario=None):
+    """`id_usuario`: só os eventos desse usuário (que precisa ser da empresa pedida)."""
     emp = _empresa(id_empresa)
+    usuario = None if id_usuario is None else _usuario(emp, id_usuario)
     ini, fim = _data(desde, "desde"), _data(ate, "ate")
     if ini and fim and fim <= ini:
         raise ErroMcp("'ate' deve ser posterior a 'desde'")
     itens = []
     for e in dados.EVENTOS:
-        if e["id_empresa"] != emp:
+        if e["id_empresa"] != emp or (usuario is not None and e["id_usuario"] != usuario):
             continue
         quando = _data(e["ocorrido_em"], "ocorrido_em")
         if (ini is None or quando > ini) and (fim is None or quando <= fim):

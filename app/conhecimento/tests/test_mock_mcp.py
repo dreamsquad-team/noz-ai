@@ -163,3 +163,65 @@ def test_mcp_sem_empresa_devolve_erro_claro():
     _, res = _chamar("listar_eventos", {"id_empresa": ""})
     assert res.isError and "id_empresa é obrigatório" in res.content[0].text
     assert "Traceback" not in res.content[0].text
+
+
+# --- consulta dirigida (D13): por usuário, por ids e por tag ---
+
+def test_eventos_por_usuario():
+    evs = tudo(servico.listar_eventos, "emp-tintas", id_usuario="u-emp-tintas-01")
+    assert evs and {e["id_usuario"] for e in evs} == {"u-emp-tintas-01"}
+    assert len(evs) == len([e for e in dados.EVENTOS if e["id_usuario"] == "u-emp-tintas-01"])
+
+
+def test_eventos_por_usuario_respeitam_a_janela_e_a_ordem():
+    desde, ate = "2026-11-05T00:00:00Z", "2026-11-15T00:00:00Z"
+    evs = tudo(servico.listar_eventos, "emp-devhub", desde=desde, ate=ate, id_usuario="u-emp-devhub-02")
+    assert evs and all(desde < e["ocorrido_em"] <= ate for e in evs)
+    assert [e["ocorrido_em"] for e in evs] == sorted(e["ocorrido_em"] for e in evs)
+
+
+def test_usuario_sem_eventos_devolve_lista_vazia_e_nao_erro():
+    assert tudo(servico.listar_eventos, "emp-tintas", id_usuario="u-emp-tintas-20") == []
+
+
+def test_usuario_inexistente_ou_de_outra_empresa_e_nao_encontrado():
+    for uid in ("u-nao-existe", "u-emp-devhub-01"):  # o segundo existe, mas em outra empresa
+        with pytest.raises(ErroMcp, match=f"usuário não encontrado: {uid}"):
+            servico.listar_eventos("emp-tintas", id_usuario=uid)
+    with pytest.raises(ErroMcp):
+        servico.listar_eventos("emp-tintas", id_usuario="  ")
+
+
+def test_conteudos_por_ids_devolve_so_os_pedidos():
+    pedidos = ["c-emp-tintas-001", "c-emp-tintas-005", "c-emp-tintas-001"]
+    achados = servico.listar_conteudos("emp-tintas", ids=pedidos)["itens"]
+    assert sorted(c["id_conteudo"] for c in achados) == ["c-emp-tintas-001", "c-emp-tintas-005"]
+
+
+def test_conteudos_por_ids_ignoram_inexistentes_e_de_outra_empresa():
+    achados = servico.listar_conteudos("emp-tintas", ids=["c-inexistente", "c-emp-devhub-001", "c-emp-tintas-002"])["itens"]
+    assert [c["id_conteudo"] for c in achados] == ["c-emp-tintas-002"]
+    assert servico.listar_conteudos("emp-tintas", ids=[])["itens"] == []
+
+
+@pytest.mark.parametrize("ruim", ["c1", [1], [""], ["a"] * 201])
+def test_ids_invalidos(ruim):
+    with pytest.raises(ErroMcp):
+        servico.listar_conteudos("emp-tintas", ids=ruim)
+
+
+def test_usuarios_por_tag_so_da_empresa_pedida():
+    pintores = tudo(servico.listar_usuarios, "emp-tintas", tag="pintor")
+    assert pintores and all("pintor" in u["tags"] and u["id_empresa"] == "emp-tintas" for u in pintores)
+    assert tudo(servico.listar_usuarios, "emp-devhub", tag="pintor") == []
+    with pytest.raises(ErroMcp):
+        servico.listar_usuarios("emp-tintas", tag="")
+
+
+def test_mcp_aceita_os_filtros_pelo_protocolo():
+    _, res = _chamar("listar_eventos", {"id_empresa": "emp-tintas", "id_usuario": "u-emp-tintas-01", "limite": 3})
+    assert not res.isError and {e["id_usuario"] for e in json.loads(res.content[0].text)["itens"]} == {"u-emp-tintas-01"}
+    _, res = _chamar("listar_conteudos", {"id_empresa": "emp-tintas", "ids": ["c-emp-tintas-001"]})
+    assert [c["id_conteudo"] for c in json.loads(res.content[0].text)["itens"]] == ["c-emp-tintas-001"]
+    _, res = _chamar("listar_eventos", {"id_empresa": "emp-tintas", "id_usuario": "u-emp-devhub-01"})
+    assert res.isError and "usuário não encontrado" in res.content[0].text

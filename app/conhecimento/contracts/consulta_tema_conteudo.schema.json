@@ -1,9 +1,25 @@
 {
   "properties": {
     "id_empresa": {
-      "description": "Empresa. Obrigatória",
+      "description": "Empresa. Obrigatória: nenhuma consulta cruza empresas",
       "minLength": 1,
       "title": "Id Empresa",
+      "type": "string"
+    },
+    "modo": {
+      "default": "real",
+      "description": "Fonte dos dados: MCP real ou MCP mockado (dados fictícios)",
+      "enum": [
+        "real",
+        "mock"
+      ],
+      "title": "Modo",
+      "type": "string"
+    },
+    "tipo": {
+      "const": "tema_conteudo",
+      "default": "tema_conteudo",
+      "title": "Tipo",
       "type": "string"
     },
     "id_conteudo": {

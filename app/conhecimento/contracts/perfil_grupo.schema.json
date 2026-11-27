@@ -1,0 +1,94 @@
+{
+  "$defs": {
+    "Interesse": {
+      "properties": {
+        "topico": {
+          "description": "Tópico de interesse, ex.: pintura",
+          "minLength": 1,
+          "title": "Topico",
+          "type": "string"
+        },
+        "peso": {
+          "description": "Força do interesse, de 0 a 1, com até duas casas decimais",
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Peso",
+          "type": "number"
+        },
+        "evidencias": {
+          "description": "Ids de eventos ou conteúdos que sustentam o interesse. Sem evidência, sem interesse",
+          "items": {
+            "type": "string"
+          },
+          "minItems": 1,
+          "title": "Evidencias",
+          "type": "array"
+        }
+      },
+      "required": [
+        "topico",
+        "peso",
+        "evidencias"
+      ],
+      "title": "Interesse",
+      "type": "object"
+    }
+  },
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa do grupo",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "tag": {
+      "description": "Tag que define o grupo",
+      "minLength": 1,
+      "title": "Tag",
+      "type": "string"
+    },
+    "usuarios_considerados": {
+      "description": "Usuários do grupo que entraram no cálculo",
+      "minimum": 0,
+      "title": "Usuarios Considerados",
+      "type": "integer"
+    },
+    "interesses": {
+      "description": "Interesse médio do grupo: média do peso entre os usuários considerados (quem não tem o tópico conta 0)",
+      "items": {
+        "$ref": "#/$defs/Interesse"
+      },
+      "title": "Interesses",
+      "type": "array"
+    },
+    "janela_desde": {
+      "description": "Início da janela de eventos considerada",
+      "format": "date-time",
+      "title": "Janela Desde",
+      "type": "string"
+    },
+    "janela_ate": {
+      "description": "Fim da janela de eventos considerada",
+      "format": "date-time",
+      "title": "Janela Ate",
+      "type": "string"
+    },
+    "avisos": {
+      "description": "O que limitou ou degradou a resposta",
+      "items": {
+        "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
+    }
+  },
+  "required": [
+    "id_empresa",
+    "tag",
+    "usuarios_considerados",
+    "janela_desde",
+    "janela_ate"
+  ],
+  "title": "PerfilGrupo",
+  "type": "object"
+}

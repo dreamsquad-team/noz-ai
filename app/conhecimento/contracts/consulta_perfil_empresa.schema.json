@@ -1,0 +1,31 @@
+{
+  "properties": {
+    "id_empresa": {
+      "description": "Empresa. Obrigatória: nenhuma consulta cruza empresas",
+      "minLength": 1,
+      "title": "Id Empresa",
+      "type": "string"
+    },
+    "modo": {
+      "default": "real",
+      "description": "Fonte dos dados: MCP real ou MCP mockado (dados fictícios)",
+      "enum": [
+        "real",
+        "mock"
+      ],
+      "title": "Modo",
+      "type": "string"
+    },
+    "tipo": {
+      "const": "perfil_empresa",
+      "default": "perfil_empresa",
+      "title": "Tipo",
+      "type": "string"
+    }
+  },
+  "required": [
+    "id_empresa"
+  ],
+  "title": "ConsultaPerfilEmpresa",
+  "type": "object"
+}

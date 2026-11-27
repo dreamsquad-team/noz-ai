@@ -59,25 +59,19 @@
       "description": "Idioma detectado",
       "title": "Idioma"
     },
-    "atualizado_em": {
-      "description": "Quando o tema foi gerado",
-      "format": "date-time",
-      "title": "Atualizado Em",
-      "type": "string"
-    },
-    "atualizado_em_conteudo": {
-      "description": "`atualizado_em` do conteúdo usado; evita reprocessar a mesma versão",
-      "format": "date-time",
-      "title": "Atualizado Em Conteudo",
-      "type": "string"
+    "avisos": {
+      "description": "Ex.: texto truncado antes de analisar",
+      "items": {
+        "type": "string"
+      },
+      "title": "Avisos",
+      "type": "array"
     }
   },
   "required": [
     "id_empresa",
     "id_conteudo",
-    "topicos",
-    "atualizado_em",
-    "atualizado_em_conteudo"
+    "topicos"
   ],
   "title": "TemaConteudo",
   "type": "object"

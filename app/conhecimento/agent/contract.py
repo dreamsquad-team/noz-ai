@@ -1,24 +1,28 @@
-"""Contratos do agente de Conhecimento (entrada, saída, perfis e consultas).
+"""Contratos do agente de Conhecimento: consultas dos outros agentes e as respostas.
 
-Mesmo padrão da Validação (Pydantic + JSON Schema gerado em `contracts/`). Todo contrato leva `id_empresa`
+Mesmo padrão da Validação (Pydantic + JSON Schema gerado em `contracts/`). O agente não guarda nada: cada consulta é de
+uma pessoa, uma empresa, um conteúdo ou um grupo, lida do MCP e respondida na hora. Todo contrato leva `id_empresa`
 obrigatório: o isolamento por empresa começa aqui.
 """
 
 from datetime import datetime
-from typing import Literal
+from typing import Annotated, Literal
 
 from pydantic import BaseModel, Field, field_validator, model_validator
 
-TODAS_AS_EMPRESAS = "todas"
+Modo = Literal["real", "mock"]
 
 
-class ConhecimentoEntrada(BaseModel):
-    """Disparo de uma execução agendada."""
+# --- consultas ---
 
-    id_empresa: str = Field(min_length=1, description="Empresa a processar, ou 'todas' para todas as empresas")
-    desde: datetime | None = Field(default=None, description="Início da janela. Vazio = desde a última execução")
-    ate: datetime | None = Field(default=None, description="Fim da janela. Vazio = agora")
-    modo: Literal["real", "mock"] = Field(default="real", description="Fonte dos dados: MCP real ou MCP mockado")
+class _Consulta(BaseModel):
+    id_empresa: str = Field(min_length=1, description="Empresa. Obrigatória: nenhuma consulta cruza empresas")
+    modo: Modo = Field(default="real", description="Fonte dos dados: MCP real ou MCP mockado (dados fictícios)")
+
+
+class _ConsultaComJanela(_Consulta):
+    desde: datetime | None = Field(default=None, description="Início da janela de eventos. Vazio = janela padrão")
+    ate: datetime | None = Field(default=None, description="Fim da janela de eventos. Vazio = agora")
 
     @model_validator(mode="after")
     def valida_janela(self):
@@ -27,17 +31,33 @@ class ConhecimentoEntrada(BaseModel):
         return self
 
 
-class ConhecimentoSaida(BaseModel):
-    """Resumo de uma execução."""
+class ConsultaPerfilUsuario(_ConsultaComJanela):
+    tipo: Literal["perfil_usuario"] = "perfil_usuario"
+    id_usuario: str = Field(min_length=1, description="Usuário")
 
-    id_empresa: str = Field(min_length=1, description="Empresa processada, ou 'todas'")
-    janela_desde: datetime | None = Field(description="Início efetivo da janela processada")
-    janela_ate: datetime = Field(description="Fim efetivo da janela processada")
-    usuarios_processados: int = Field(ge=0, description="Perfis de usuário atualizados")
-    conteudos_processados: int = Field(ge=0, description="Conteúdos com tema gerado ou atualizado")
-    eventos_processados: int = Field(ge=0, description="Eventos lidos na janela")
-    erros: list[str] = Field(default_factory=list, description="Erros ocorridos, sem stack trace")
 
+class ConsultaPerfilEmpresa(_Consulta):
+    tipo: Literal["perfil_empresa"] = "perfil_empresa"
+
+
+class ConsultaTemaConteudo(_Consulta):
+    tipo: Literal["tema_conteudo"] = "tema_conteudo"
+    id_conteudo: str = Field(min_length=1, description="Conteúdo")
+
+
+class ConsultaPerfilGrupo(_ConsultaComJanela):
+    tipo: Literal["perfil_grupo"] = "perfil_grupo"
+    tag: str = Field(min_length=1, description="Tag que define o grupo, ex.: pintor")
+
+
+# O campo `tipo` escolhe a consulta: {"tipo": "perfil_usuario", "id_empresa": "...", "id_usuario": "..."}
+Consulta = Annotated[
+    ConsultaPerfilUsuario | ConsultaPerfilEmpresa | ConsultaTemaConteudo | ConsultaPerfilGrupo,
+    Field(discriminator="tipo"),
+]
+
+
+# --- respostas ---
 
 class Interesse(BaseModel):
     topico: str = Field(min_length=1, description="Tópico de interesse, ex.: pintura")
@@ -56,17 +76,19 @@ class PerfilUsuario(BaseModel):
     id_empresa: str = Field(min_length=1, description="Empresa do usuário")
     id_usuario: str = Field(min_length=1, description="Usuário")
     interesses: list[Interesse] = Field(default_factory=list, description="Interesses inferidos, do mais forte ao mais fraco")
-    canal_preferido: str | None = Field(default=None, description="Canal mais usado")
-    dispositivo_preferido: str | None = Field(default=None, description="Dispositivo mais usado")
-    atualizado_em: datetime = Field(description="Quando o perfil foi atualizado")
-    versao: int = Field(ge=1, description="Versão do perfil, incrementada a cada atualização")
+    canal_preferido: str | None = Field(default=None, description="Canal mais usado na janela")
+    dispositivo_preferido: str | None = Field(default=None, description="Dispositivo mais usado na janela")
+    janela_desde: datetime = Field(description="Início da janela de eventos considerada")
+    janela_ate: datetime = Field(description="Fim da janela de eventos considerada")
+    eventos_considerados: int = Field(ge=0, description="Quantos eventos entraram no cálculo")
+    avisos: list[str] = Field(default_factory=list, description="O que limitou ou degradou a resposta (cortes, conteúdos sem tema)")
 
 
 class PerfilEmpresa(BaseModel):
     id_empresa: str = Field(min_length=1, description="Empresa")
     temas: list[Interesse] = Field(default_factory=list, description="Temas sobre os quais a empresa publica")
-    atualizado_em: datetime = Field(description="Quando o perfil foi atualizado")
-    versao: int = Field(ge=1, description="Versão do perfil")
+    conteudos_considerados: int = Field(ge=0, description="Quantos conteúdos entraram no cálculo")
+    avisos: list[str] = Field(default_factory=list, description="O que limitou ou degradou a resposta")
 
 
 class TemaConteudo(BaseModel):
@@ -76,33 +98,30 @@ class TemaConteudo(BaseModel):
     categoria: str | None = Field(default=None, description="Categoria sugerida")
     resumo: str | None = Field(default=None, description="Resumo curto, sem instruções do texto original")
     idioma: str | None = Field(default=None, description="Idioma detectado")
-    atualizado_em: datetime = Field(description="Quando o tema foi gerado")
-    atualizado_em_conteudo: datetime = Field(description="`atualizado_em` do conteúdo usado; evita reprocessar a mesma versão")
+    avisos: list[str] = Field(default_factory=list, description="Ex.: texto truncado antes de analisar")
 
 
-class ConsultaPerfilUsuario(BaseModel):
-    id_empresa: str = Field(min_length=1, description="Empresa. Obrigatória")
-    id_usuario: str = Field(min_length=1, description="Usuário")
-
-
-class ConsultaTemaConteudo(BaseModel):
-    id_empresa: str = Field(min_length=1, description="Empresa. Obrigatória")
-    id_conteudo: str = Field(min_length=1, description="Conteúdo")
-
-
-class ConsultaPerfilGrupo(BaseModel):
-    id_empresa: str = Field(min_length=1, description="Empresa. Obrigatória")
-    tag: str = Field(min_length=1, description="Tag que define o grupo, ex.: pintor")
+class PerfilGrupo(BaseModel):
+    id_empresa: str = Field(min_length=1, description="Empresa do grupo")
+    tag: str = Field(min_length=1, description="Tag que define o grupo")
+    usuarios_considerados: int = Field(ge=0, description="Usuários do grupo que entraram no cálculo")
+    interesses: list[Interesse] = Field(
+        default_factory=list,
+        description="Interesse médio do grupo: média do peso entre os usuários considerados (quem não tem o tópico conta 0)",
+    )
+    janela_desde: datetime = Field(description="Início da janela de eventos considerada")
+    janela_ate: datetime = Field(description="Fim da janela de eventos considerada")
+    avisos: list[str] = Field(default_factory=list, description="O que limitou ou degradou a resposta")
 
 
 # Contratos públicos que viram JSON Schema em `contracts/`.
 CONTRATOS = {
-    "entrada": ConhecimentoEntrada,
-    "saida": ConhecimentoSaida,
+    "consulta_perfil_usuario": ConsultaPerfilUsuario,
+    "consulta_perfil_empresa": ConsultaPerfilEmpresa,
+    "consulta_tema_conteudo": ConsultaTemaConteudo,
+    "consulta_perfil_grupo": ConsultaPerfilGrupo,
     "perfil_usuario": PerfilUsuario,
     "perfil_empresa": PerfilEmpresa,
     "tema_conteudo": TemaConteudo,
-    "consulta_perfil_usuario": ConsultaPerfilUsuario,
-    "consulta_tema_conteudo": ConsultaTemaConteudo,
-    "consulta_perfil_grupo": ConsultaPerfilGrupo,
+    "perfil_grupo": PerfilGrupo,
 }

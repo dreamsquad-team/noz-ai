@@ -1,10 +1,9 @@
 {
   "id_empresa": "emp-tintas",
-  "id_conteudo": "c-emp-tintas-003",
-  "topicos": ["pintura", "tintas"],
-  "categoria": "Construção",
-  "resumo": "Como escolher a tinta certa para paredes internas.",
+  "id_conteudo": "c-emp-tintas-001",
+  "topicos": ["pintura"],
+  "categoria": "construção",
+  "resumo": "Como pintar uma parede externa.",
   "idioma": "pt-BR",
-  "atualizado_em": "2026-11-27T03:00:00Z",
-  "atualizado_em_conteudo": "2026-11-20T10:00:00Z"
+  "avisos": []
 }
